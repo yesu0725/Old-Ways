@@ -15,6 +15,24 @@ Status: `DECIDED`, versions verified against the local install 2026-08-06.
 | Target | `net48` via `Microsoft.NETFramework.ReferenceAssemblies` (builds on the .NET 9 SDK) |
 | Distribution | Server-side required; Thunderstore packaging for client installs |
 
+### Test deployment — `IMPLEMENTED`
+
+**Every build copies itself into the r2modman "Mod Test Profile" automatically.** The `.pdb` goes too,
+so BepInEx stack traces carry line numbers.
+
+```
+%AppData%\r2modmanPlus-local\Valheim\profiles\Mod Test Profile\BepInEx\plugins\OldWays\
+```
+
+r2modman keeps a **separate BepInEx tree per profile** — dropping the dll into the Steam install would
+not be picked up by a profile launch. That's why this, not the Steam folder, is the default target.
+`-p:DeployToTestProfile=false` skips it; `-p:DeployToClient=true` additionally copies into the raw
+Steam install.
+
+Already installed in that profile and useful here: **ConfigurationManager** (inspect the synced config
+in-game) and **server_devcommands** (`raiseskill` — the exact thing Proven must be immune to, per
+[03](03-proven-system.md)).
+
 ### Verified local environment (2026-08-06)
 
 | | Path / version |
@@ -26,9 +44,8 @@ Status: `DECIDED`, versions verified against the local install 2026-08-06.
 **Note:** client and server BepInEx patch versions differ (.3 vs .5). Harmless — both are 5.4.23 — but
 worth aligning when convenient.
 
-**Deep North check:** the boss roster in [04](04-boss-reactions.md) lists 7 bosses per the handoff. If
-the current build has shipped an 8th (Deep North) boss, that roster needs a row. Not confirmable from a
-binary string scan — verify in-game during Phase 0.
+**Deep North:** confirmed 2026-08-06 that no 8th boss exists on this build. The
+[04](04-boss-reactions.md) roster of 7 is complete.
 
 ## Authority model — `DECIDED` (confirmed 2026-08-06)
 
@@ -123,3 +140,4 @@ Git-initialized 2026-08-06, `main` branch, no remote yet.
 | 2026-08-06 | `net48` via NETFramework.ReferenceAssemblies so the .NET 9 SDK can build it. |
 | 2026-08-06 | ServerSync **vendored** (MIT-0), reviewed, and wired through the `Bind()` seam. Version-matching on. |
 | 2026-08-06 | Assembly publicizer added — a hard requirement of ServerSync, and our own patches will want it. |
+| 2026-08-06 | Every build auto-deploys to the r2modman "Mod Test Profile" (dll + pdb). |

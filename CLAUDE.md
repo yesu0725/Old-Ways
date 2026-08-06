@@ -64,8 +64,10 @@ mastery. Nothing is bolted on: every effect finishes something vanilla started.
 dotnet build src/OldWays/OldWays.csproj -c Release
 ```
 
-Add `-p:DeployToClient=true` to copy into `BepInEx/plugins/OldWays`. Game assemblies come from the
-local Steam install via [Directory.Build.props](Directory.Build.props) and are never committed.
+**Every build auto-deploys to the r2modman "Mod Test Profile"** — that profile has its own BepInEx
+tree, so the Steam install's plugins folder is not what a profile launch reads. Game assemblies come
+from the local Steam install via [Directory.Build.props](Directory.Build.props) and are never
+committed.
 
 ## Maintenance rule (read this before editing anything)
 

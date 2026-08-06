@@ -52,8 +52,9 @@ This also simplifies area effects: Bonemass's spreading cloud and Yagluth's fire
 objects that can't be tuned per-target anyway. Under encounter scoping there's no special case — they
 use the same number as everything else.
 
-Roster is the 7 vanilla bosses as of the Ashlands update. The Deep North / 8th boss is not released;
-add a row here when it ships.
+**The roster is complete at 7.** Confirmed 2026-08-06 against the server's current build: there is no
+Deep North / 8th boss. If one ships in a future update, add a row and design its second act then —
+until that happens, this table is the whole boss surface and Phase 7 is fully scoped.
 
 ## The reactions
 
@@ -95,3 +96,4 @@ add a row here when it ships.
 | 2026-08-06 | ~~Intensity scaled per individual player~~ — superseded same day. |
 | 2026-08-06 | **Intensity:** whole encounter scales off the **highest** Presence present; re-evaluated on join/leave. |
 | 2026-08-06 | Chain Bolt targets players only, never structures. |
+| 2026-08-06 | Roster confirmed complete at **7 bosses** — no Deep North boss exists. Phase 7 fully scoped. |

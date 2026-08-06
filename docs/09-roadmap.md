@@ -17,7 +17,10 @@ go. `DECIDED 2026-08-06`. Each phase is independently testable in-game before th
 - [x] `DeployToClient` build flag copies the dll into `BepInEx/plugins/OldWays`
 - [x] **ServerSync vendored** (MIT-0, reviewed, provenance recorded) and routed through `Bind()`;
       assembly publicizer added; client version-matching on
-- [ ] Confirm the plugin actually loads in-game and check for a Deep North boss (Q18)
+- [x] Every build auto-deploys to the r2modman "Mod Test Profile" (dll + pdb)
+- [x] Deep North boss confirmed **not to exist** — [04](04-boss-reactions.md) roster complete at 7
+- [ ] Confirm the plugin actually loads in-game (launch the test profile, check the BepInEx log
+      for the version line)
 - [ ] Git remote
 
 **Exit:** an empty plugin loads on the server and logs its version.

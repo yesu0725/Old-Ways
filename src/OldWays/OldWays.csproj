@@ -93,7 +93,24 @@
     <Error Text="Valheim managed assemblies not found at '$(ValheimManaged)'. Set &lt;ValheimDir&gt; in Directory.Build.props.user." />
   </Target>
 
-  <Target Name="DeployPlugin" AfterTargets="Build" Condition="'$(DeployToClient)' == 'true'">
+  <!--
+    Every build lands in the r2modman test profile. The .pdb goes too, so BepInEx stack traces
+    carry line numbers.
+  -->
+  <Target Name="DeployToTestProfile" AfterTargets="Build" Condition="'$(DeployToTestProfile)' == 'true'">
+    <Warning Condition="!Exists('$(R2ModManProfile)')"
+             Text="r2modman test profile not found at '$(R2ModManProfile)' — skipping deploy. Override &lt;R2ModManProfile&gt; in Directory.Build.props.user." />
+    <MakeDir Condition="Exists('$(R2ModManProfile)')" Directories="$(TestProfilePlugins)" />
+    <Copy Condition="Exists('$(R2ModManProfile)')"
+          SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb"
+          DestinationFolder="$(TestProfilePlugins)"
+          SkipUnchangedFiles="false" />
+    <Message Condition="Exists('$(R2ModManProfile)')" Importance="high"
+             Text="Deployed $(TargetFileName) -> $(TestProfilePlugins)" />
+  </Target>
+
+  <Target Name="DeployToClient" AfterTargets="Build" Condition="'$(DeployToClient)' == 'true'">
+    <MakeDir Directories="$(ValheimDir)\BepInEx\plugins\OldWays" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ValheimDir)\BepInEx\plugins\OldWays" />
     <Message Importance="high" Text="Deployed $(TargetFileName) -> $(ValheimDir)\BepInEx\plugins\OldWays" />
   </Target>

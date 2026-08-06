@@ -15,7 +15,18 @@
     <ValheimManaged>$(ValheimDir)\valheim_Data\Managed</ValheimManaged>
     <BepInExCore>$(ValheimDir)\BepInEx\core</BepInExCore>
 
-    <!-- Set to true to copy the built dll into the client's plugins folder after build. -->
+    <!--
+      Every build is copied here automatically. This is the r2modman test profile used to
+      run the mod ("Mod Test Profile"), NOT the raw Steam install — r2modman keeps its own
+      BepInEx tree per profile, so dropping the dll in the Steam folder would not be picked up.
+
+      Set DeployToTestProfile=false to skip the copy for a build.
+    -->
+    <R2ModManProfile Condition="'$(R2ModManProfile)' == ''">$(AppData)\r2modmanPlus-local\Valheim\profiles\Mod Test Profile</R2ModManProfile>
+    <TestProfilePlugins>$(R2ModManProfile)\BepInEx\plugins\OldWays</TestProfilePlugins>
+    <DeployToTestProfile Condition="'$(DeployToTestProfile)' == ''">true</DeployToTestProfile>
+
+    <!-- Opt-in: also copy into the raw Steam install's plugins folder. -->
     <DeployToClient Condition="'$(DeployToClient)' == ''">false</DeployToClient>
   </PropertyGroup>
 
