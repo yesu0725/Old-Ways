@@ -5,12 +5,20 @@ Status: `DECIDED` in shape (2026-08-06)
 v1 **ships** all 13 weapon families together (handoff §4), but it is **built in phases** — not in one
 go. `DECIDED 2026-08-06`. Each phase is independently testable in-game before the next starts.
 
-## Phase 0 — Scaffold
+## Phase 0 — Scaffold  `IN PROGRESS`
 
-- Verify the server's Valheim build and pin BepInEx/ServerSync versions ([07](07-technical-architecture.md)).
-- Project structure, publicized assembly references, build → deploy-to-test-server loop.
-- ServerSync config skeleton with the three toggle levels.
-- Git init + remote.
+- [x] Verify Valheim build and BepInEx version — build 21981590, BepInEx 5.4.23.x ([07](07-technical-architecture.md))
+- [x] Git init, `main` branch, `.gitignore` excluding game assemblies and build output
+- [x] Project structure + `Directory.Build.props` with overridable local game path
+- [x] `net48` build on the .NET 9 SDK — **builds clean**
+- [x] Plugin loads, logs version + client/server environment, applies Harmony
+- [x] Config skeleton with the three toggle levels; all Proven weights, thresholds and the
+      reaction curve config-exposed
+- [x] `DeployToClient` build flag copies the dll into `BepInEx/plugins/OldWays`
+- [ ] **Vendor ServerSync** and route the `Bind()` seam through it — blocked on Q17
+      ([08](08-open-questions.md))
+- [ ] Confirm the plugin actually loads in-game and check for a Deep North boss (Q18)
+- [ ] Git remote
 
 **Exit:** an empty plugin loads on the server and logs its version.
 

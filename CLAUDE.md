@@ -52,9 +52,20 @@ mastery. Nothing is bolted on: every effect finishes something vanilla started.
 - **Old Ways Presence** = a player's highest Proven rank across all skills (0–5). One number, drives all
   enemy reactions.
 - **Enemy reactions** split gate from intensity: *any one* Rank 1+ player present switches a reaction
-  on; its strength against a given player scales to **that player's** Presence. A group's veteran never
-  makes a newcomer's fight harder.
-- **Current status: nothing implemented.** Next step is [Phase 0](docs/09-roadmap.md).
+  on; the **whole encounter then scales off the highest Presence present**. A veteran raises the fight
+  for everyone in it — deliberate, see [04](docs/04-boss-reactions.md).
+- **Server-authoritative and server-required.** Clients never write Proven.
+- **Current status: [Phase 0](docs/09-roadmap.md) in progress** — plugin scaffold builds and loads,
+  config bound, no gameplay systems yet.
+
+## Build
+
+```bash
+dotnet build src/OldWays/OldWays.csproj -c Release
+```
+
+Add `-p:DeployToClient=true` to copy into `BepInEx/plugins/OldWays`. Game assemblies come from the
+local Steam install via [Directory.Build.props](Directory.Build.props) and are never committed.
 
 ## Maintenance rule (read this before editing anything)
 
