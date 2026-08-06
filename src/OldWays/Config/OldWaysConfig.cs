@@ -1,9 +1,10 @@
 using BepInEx.Configuration;
+using ServerSync;
 
 namespace OldWays
 {
     /// <summary>
-    /// Config skeleton with the three toggle levels from docs/07-technical-architecture.md:
+    /// Config with the three toggle levels from docs/07-technical-architecture.md:
     ///   1. per category  — an entire system off
     ///   2. per entry     — one power / boss reaction / creature behavior off
     ///   3. per value     — PP weights, thresholds, curve
@@ -11,10 +12,10 @@ namespace OldWays
     /// Level 3 is the important one: the numbers in docs/03-proven-system.md are an explicit
     /// first pass and must be retunable without a rebuild.
     ///
-    /// TODO (Phase 0): swap Bind() to route through ServerSync so the server pushes these to
-    /// clients and admin-locks them. Every entry goes through the Bind() wrapper below precisely
-    /// so that becomes a one-file change. ServerSync.cs is vendored as source (not on NuGet) and
-    /// still needs to be dropped into src/OldWays/Util/.
+    /// Every entry goes through Bind(), which registers it with ServerSync — the server is the
+    /// source of truth and pushes values to clients, admin-locked. Since Proven is
+    /// server-authoritative, config that clients could diverge on would be a hole in the same
+    /// wall.
     ///
     /// Level-2 entry toggles are registered by their own phases via Toggle(), not all up front.
     /// </summary>
@@ -23,6 +24,22 @@ namespace OldWays
         private const string SecGeneral = "1 - General";
         private const string SecProven = "2 - Proven";
         private const string SecReactions = "3 - Enemy Reactions";
+
+        internal static readonly ConfigSync SyncManager = new(Plugin.PluginGuid)
+        {
+            DisplayName = Plugin.PluginName,
+            CurrentVersion = Plugin.PluginVersion,
+            // Server-required (docs/07): clients on a different version are refused at connect
+            // rather than silently desyncing.
+            MinimumRequiredVersion = Plugin.PluginVersion,
+            ModRequired = true,
+        };
+
+        /// <summary>
+        /// When true, non-admin clients cannot override server-pushed values.
+        /// Registered as ServerSync's locking entry.
+        /// </summary>
+        internal static ConfigEntry<bool> LockConfig;
 
         // ---- Level 1: category toggles ------------------------------------------------
 
@@ -64,6 +81,12 @@ namespace OldWays
 
         internal static void Bind(ConfigFile cfg)
         {
+            LockConfig = cfg.Bind(SecGeneral, "Lock Configuration", true,
+                "If on, only server admins can change these settings; everyone else receives the " +
+                "server's values. Server-authoritative Proven is pointless if clients can retune " +
+                "the weights that feed it.");
+            SyncManager.AddLockingConfigEntry(LockConfig);
+
             ModEnabled = Bind(cfg, SecGeneral, "Enabled", true,
                 "Master switch. False disables every system in the mod.");
             SkillTweaksEnabled = Bind(cfg, SecGeneral, "Skill Mastery Tweaks", true,
@@ -110,12 +133,14 @@ namespace OldWays
         }
 
         /// <summary>
-        /// Single seam for every config entry. Swap the body to route through ServerSync
-        /// and the whole mod becomes server-synced at once.
+        /// Single seam for every config entry: binds it and registers it with ServerSync so the
+        /// server's value wins. Nothing in this mod should call cfg.Bind directly.
         /// </summary>
         private static ConfigEntry<T> Bind<T>(ConfigFile cfg, string section, string key, T defaultValue, string description)
         {
-            return cfg.Bind(section, key, defaultValue, description);
+            ConfigEntry<T> entry = cfg.Bind(section, key, defaultValue, description);
+            SyncManager.AddConfigEntry(entry);
+            return entry;
         }
 
         /// <summary>

@@ -8,7 +8,8 @@ Status: `DECIDED`, versions verified against the local install 2026-08-06.
 |---|---|
 | Loader | **BepInEx 5.4.23.x** — verified installed. *Not* the BepInEx 6 preview line; 5.4.23 is current for Valheim |
 | Patching | **HarmonyX 2.9** (`0Harmony.dll`, bundled with BepInEx 5) |
-| Config sync | **ServerSync** — server pushes config to clients, admin-locked. Vendored as source |
+| Config sync | **ServerSync** — vendored 2026-08-06 at `src/OldWays/Util/ServerSync/ConfigSync.cs`. See its [PROVENANCE.md](../src/OldWays/Util/ServerSync/PROVENANCE.md) |
+| Publicizer | **BepInEx.AssemblyPublicizer.MSBuild** — required; ServerSync reflects into Valheim privates |
 | Jötunn | **Not used.** Its value is custom prefab/asset/item registration; this mod adds no assets ([00](00-design-principles.md)). Skipping it removes a dependency and a version-coupling risk. |
 | Assemblies | Valheim managed assemblies referenced from the local install, **never committed** |
 | Target | `net48` via `Microsoft.NETFramework.ReferenceAssemblies` (builds on the .NET 9 SDK) |
@@ -49,9 +50,22 @@ the world save (not inside vanilla skills data — that's the entire point).
 Must survive death, world reload, and server restart. Player-ID-keyed rather than ZDO-attached so a
 character rebuild or ZDO churn can't wipe earned progress.
 
-## Config — `DECIDED`
+## Config — `IMPLEMENTED` (Phase 0)
 
-ServerSync'd, admin-locked, with toggles at three levels:
+ServerSync'd, admin-locked, with toggles at three levels. Every entry routes through a single
+`Bind()` seam in `src/OldWays/Config/OldWaysConfig.cs` that registers it with ServerSync — nothing
+in this mod should call `cfg.Bind` directly.
+
+Client version-matching is on (`ModRequired`, `MinimumRequiredVersion` = current version), so a client
+with a mismatched build is refused at connect rather than silently desyncing. That is the mechanism
+that makes "server-required" real rather than aspirational.
+
+**Build gotcha:** do not add a `JetBrains.Annotations` package — ServerSync's `[PublicAPI]` /
+`[UsedImplicitly]` resolve from `UnityEngine.CoreModule`, which already ships them. Adding the package
+produces CS0433 ambiguity errors. `Unity.TextMeshPro` must be referenced (ServerSync's connect-error
+panel touches `TMP_Text`).
+
+Toggle levels:
 
 1. **Per category** — skill tweaks / weapon powers / boss reactions / creature reactions, each off-able
    wholesale.
@@ -107,3 +121,5 @@ Git-initialized 2026-08-06, `main` branch, no remote yet.
 | 2026-08-06 | Storage: mod-owned server-side save, keyed by player ID + character name. |
 | 2026-08-06 | Config toggles at category, entry, and value level, all ServerSync'd. |
 | 2026-08-06 | `net48` via NETFramework.ReferenceAssemblies so the .NET 9 SDK can build it. |
+| 2026-08-06 | ServerSync **vendored** (MIT-0), reviewed, and wired through the `Bind()` seam. Version-matching on. |
+| 2026-08-06 | Assembly publicizer added — a hard requirement of ServerSync, and our own patches will want it. |

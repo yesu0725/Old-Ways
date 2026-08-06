@@ -15,8 +15,8 @@ go. `DECIDED 2026-08-06`. Each phase is independently testable in-game before th
 - [x] Config skeleton with the three toggle levels; all Proven weights, thresholds and the
       reaction curve config-exposed
 - [x] `DeployToClient` build flag copies the dll into `BepInEx/plugins/OldWays`
-- [ ] **Vendor ServerSync** and route the `Bind()` seam through it — blocked on Q17
-      ([08](08-open-questions.md))
+- [x] **ServerSync vendored** (MIT-0, reviewed, provenance recorded) and routed through `Bind()`;
+      assembly publicizer added; client version-matching on
 - [ ] Confirm the plugin actually loads in-game and check for a Deep North boss (Q18)
 - [ ] Git remote
 

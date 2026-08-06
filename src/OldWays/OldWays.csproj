@@ -4,7 +4,11 @@
     <TargetFramework>net48</TargetFramework>
     <AssemblyName>OldWays</AssemblyName>
     <RootNamespace>OldWays</RootNamespace>
+    <!-- ServerSync's ConfigSync.cs needs C# 12 (file-scoped namespaces, primary constructors)
+         and a nullable annotation context. 'annotations' allows ?-annotations without turning on
+         null-flow warnings across our own code. -->
     <LangVersion>latest</LangVersion>
+    <Nullable>annotations</Nullable>
     <Version>0.1.0</Version>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
@@ -20,6 +24,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <!-- Publicizes the game assemblies at build time so ServerSync (and later our own patches)
+         can reach Valheim private members. Build-time only; nothing is redistributed. -->
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" PrivateAssets="all" />
+    <!-- NOTE: do NOT add a JetBrains.Annotations package. ServerSync's [PublicAPI] /
+         [UsedImplicitly] resolve from UnityEngine.CoreModule, which already ships them;
+         adding the package causes CS0433 ambiguity errors. -->
   </ItemGroup>
 
   <!--
@@ -35,11 +45,11 @@
       <HintPath>$(BepInExCore)\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="assembly_valheim">
+    <Reference Include="assembly_valheim" Publicize="true">
       <HintPath>$(ValheimManaged)\assembly_valheim.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="assembly_utils">
+    <Reference Include="assembly_utils" Publicize="true">
       <HintPath>$(ValheimManaged)\assembly_utils.dll</HintPath>
       <Private>false</Private>
     </Reference>
@@ -69,6 +79,11 @@
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>$(ValheimManaged)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- ServerSync's connect-error panel touches TMP_Text; the trial log UI (docs/06) needs it too. -->
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(ValheimManaged)\Unity.TextMeshPro.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

@@ -5,13 +5,6 @@ decision and is logged there, then moves to Answered below.
 
 ## Open
 
-### Q17 — Vendor ServerSync?
-Config is currently plain BepInEx `ConfigFile`; there is a single `Bind()` seam in
-`src/OldWays/Config/OldWaysConfig.cs` ready to route through ServerSync. ServerSync ships as a source
-file to vendor, not a NuGet package — it needs to be downloaded and committed. **Needs the go-ahead
-before pulling third-party source into the repo.** Blocks Phase 0 completion.
-→ [07](07-technical-architecture.md).
-
 ### Q18 — Deep North boss
 The [04](04-boss-reactions.md) roster lists 7 bosses per the handoff. The server is on the latest
 build; if an 8th (Deep North) boss has since shipped, it needs a reaction designed. A binary string
@@ -50,7 +43,7 @@ If another mod adds 3★+, do creature reactions apply? Proposed: yes, treat as 
 → [05](05-creature-reactions.md).
 
 *Q12–Q16 all have proposals on record and are non-blocking — they can ride along with their phase.
-Q17 blocks Phase 0 completion; Q18–Q19 block Phase 7.*
+Q18–Q19 block Phase 7.*
 
 ### Q6 (reopened, then held) — Proven granularity
 Per-vanilla-skill vs. per-weapon-family was re-examined 2026-08-06. Finding: the two are **identical
@@ -65,6 +58,7 @@ mapping table, and three sub-bars crammed into one skills-screen row. **Held at 
 |---|---|---|---|
 | Q1 | Reaction curve intensity | **Steady curve** scaling with mastery. Intensity revised same day: the **whole encounter scales off the highest-mastery player present**, not per-individual → [04](04-boss-reactions.md) | 2026-08-06 |
 | Q11 | Server-required acceptable? | **Yes** — Proven stays server-authoritative → [07](07-technical-architecture.md) | 2026-08-06 |
+| Q17 | Vendor ServerSync? | **Yes** — vendored, reviewed, wired through the `Bind()` seam → [PROVENANCE](../src/OldWays/Util/ServerSync/PROVENANCE.md) | 2026-08-06 |
 | — | Valheim / BepInEx versions | Verified locally: build 21981590, BepInEx 5.4.23.x → [07](07-technical-architecture.md) | 2026-08-06 |
 | Q2 | Group gating | Reactions switch on when **any one** Proven player is present → [04](04-boss-reactions.md) | 2026-08-06 |
 | Q3 | Proven thresholds and weights | Elaborated in full: 5-rank ladder, base weights, tier multiplier, DR curve → [03](03-proven-system.md) | 2026-08-06 |

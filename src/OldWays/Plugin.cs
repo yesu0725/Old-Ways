@@ -45,6 +45,8 @@ namespace OldWays
 
             Log.LogInfo($"{PluginName} v{PluginVersion} loaded ({(IsHeadless ? "dedicated server" : "client")}).");
             Log.LogInfo($"Harmony patches applied: {_harmony.GetPatchedMethods().CountOrZero()}");
+            Log.LogInfo($"ServerSync active — config is server-authoritative, " +
+                        $"lock={OldWaysConfig.LockConfig.Value}, min client version={PluginVersion}.");
 
             if (!OldWaysConfig.ModEnabled.Value)
             {
