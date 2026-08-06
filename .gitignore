@@ -1,0 +1,20 @@
+# Build output
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+
+# Valheim assemblies — referenced from the local install, never committed.
+# These are copyrighted game files; distributing them is not ok.
+lib/*.dll
+publicized/
+
+# Local machine paths
+Directory.Build.props.user
+*.local.props
+
+# Packaging output
+dist/
+*.zip

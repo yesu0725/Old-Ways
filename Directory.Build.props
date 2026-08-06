@@ -1,0 +1,24 @@
+<Project>
+
+  <!--
+    Local machine paths. Override per-machine by creating Directory.Build.props.user
+    (gitignored) next to this file with your own <ValheimDir> / <ValheimServerDir>.
+
+    Verified on this machine 2026-08-06:
+      client BepInEx 5.4.23.3 (build 21981559)
+      server BepInEx 5.4.23.5 (build 21981590)
+  -->
+  <PropertyGroup>
+    <ValheimDir Condition="'$(ValheimDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Valheim</ValheimDir>
+    <ValheimServerDir Condition="'$(ValheimServerDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Valheim dedicated server</ValheimServerDir>
+
+    <ValheimManaged>$(ValheimDir)\valheim_Data\Managed</ValheimManaged>
+    <BepInExCore>$(ValheimDir)\BepInEx\core</BepInExCore>
+
+    <!-- Set to true to copy the built dll into the client's plugins folder after build. -->
+    <DeployToClient Condition="'$(DeployToClient)' == ''">false</DeployToClient>
+  </PropertyGroup>
+
+  <Import Project="Directory.Build.props.user" Condition="Exists('Directory.Build.props.user')" />
+
+</Project>
