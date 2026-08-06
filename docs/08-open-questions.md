@@ -54,6 +54,7 @@ mapping table, and three sub-bars crammed into one skills-screen row. **Held at 
 | Q11 | Server-required acceptable? | **Yes** — Proven stays server-authoritative → [07](07-technical-architecture.md) | 2026-08-06 |
 | Q17 | Vendor ServerSync? | **Yes** — vendored, reviewed, wired through the `Bind()` seam → [PROVENANCE](../src/OldWays/Util/ServerSync/PROVENANCE.md) | 2026-08-06 |
 | Q18 | Deep North boss | **Does not exist.** Roster complete at 7; Phase 7 fully scoped → [04](04-boss-reactions.md) | 2026-08-06 |
+| Q20 | LICENSE file? | **None** — matches all seven existing repos; all rights reserved → [07](07-technical-architecture.md) | 2026-08-06 |
 | — | Valheim / BepInEx versions | Verified locally: build 21981590, BepInEx 5.4.23.x → [07](07-technical-architecture.md) | 2026-08-06 |
 | Q2 | Group gating | Reactions switch on when **any one** Proven player is present → [04](04-boss-reactions.md) | 2026-08-06 |
 | Q3 | Proven thresholds and weights | Elaborated in full: 5-rank ladder, base weights, tier multiplier, DR curve → [03](03-proven-system.md) | 2026-08-06 |

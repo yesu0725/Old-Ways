@@ -25,7 +25,7 @@ go. `DECIDED 2026-08-06`. Each phase is independently testable in-game before th
 **Exit:** an empty plugin loads on the server and logs its version. ✅
 
 Outstanding admin, not blocking Phase 1: the GitHub repo itself still needs creating and a first
-push; no LICENSE file chosen yet.
+push. **No LICENSE by decision** ([07](07-technical-architecture.md)) — not a todo.
 
 ## Phase 1 — Proven core + trial log  `NEXT`
 

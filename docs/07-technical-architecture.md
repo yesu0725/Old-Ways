@@ -127,7 +127,19 @@ Rough map. **Unverified** — needs a pass against decompiled Valheim source bef
 
 ## Repo
 
-Git-initialized 2026-08-06, `main` branch, no remote yet.
+Git-initialized 2026-08-06, `main` branch. `origin` → `github.com/yesu0725/Old-Ways`.
+
+**No LICENSE file.** `DECIDED 2026-08-06` — matches all seven of the author's existing public repos,
+including BiomeLords and Lost Scrolls II. Default copyright applies: all rights reserved. The author
+may distribute freely (they own it); third parties may not redistribute, fork-and-maintain, or bundle
+it into modpacks without permission.
+
+Two things this does **not** block:
+- Thunderstore packaging — its `manifest.json` has no license field, so Phase 9 is unaffected.
+- The vendored ServerSync — MIT-0 imposes no obligations at all, so there is no conflict with an
+  otherwise-unlicensed project.
+
+Don't re-raise this without a reason; it's a settled preference, not an oversight.
 
 ## Decision log
 
