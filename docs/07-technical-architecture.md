@@ -94,16 +94,33 @@ require a rebuild.
 
 ## Patch surface
 
-Rough map. **Unverified** — needs a pass against decompiled Valheim source before it's trustworthy.
+Phase 1 rows are **verified against the shipped assembly**; later rows are still a rough map.
 
-| Category | Likely hooks |
-|---|---|
-| [Skill tweaks](01-skill-mastery.md) | `Skills`, `Character.Damage`, `Player.UpdateStealth`, `Attack`, `ItemDrop.ItemData` durability |
-| [Weapon powers](02-weapon-mastery.md) | `Attack`, `Humanoid.BlockAttack`, `Projectile`, `Character.Stagger` |
-| [Proven](03-proven-system.md) | `Character.OnDeath` + damage attribution, boss aggro state |
-| [Boss reactions](04-boss-reactions.md) | Per-boss AI components and ability spawners |
-| [Creature reactions](05-creature-reactions.md) | `MonsterAI`, `BaseAI`, `Humanoid` |
-| [Trial log](06-ui-trial-log.md) | `SkillsDialog` |
+| Category | Hooks | Status |
+|---|---|---|
+| [Proven](03-proven-system.md) | `Character.Damage(HitData)` postfix, `Character.OnDeath` prefix, `ZNet.Awake`, `ZNet.SaveWorldAndPlayerProfiles`, `ZNet.Shutdown` | verified |
+| [Trial log](06-ui-trial-log.md) | `SkillsDialog.Setup`, `Terminal.InitTerminal` | verified |
+| [Skill tweaks](01-skill-mastery.md) | `Skills`, `Character.Damage`, `Player.UpdateStealth`, `Attack`, durability | unverified |
+| [Weapon powers](02-weapon-mastery.md) | `Attack`, `Humanoid.BlockAttack`, `Projectile`, stagger | unverified |
+| [Boss reactions](04-boss-reactions.md) | Per-boss AI components and ability spawners | unverified |
+| [Creature reactions](05-creature-reactions.md) | `MonsterAI`, `BaseAI`, `Humanoid` | unverified |
+
+### Verified API facts worth not re-deriving
+
+- `Skills.SkillType` combat values are exactly our 11 tracks: Swords 1, Knives 2, Clubs 3,
+  Polearms 4, Spears 5, Blocking 6, Axes 7, Bows 8, ElementalMagic 9, BloodMagic 10, Crossbows 14.
+- `HitData.m_skill` carries the crediting skill — attribution needs no weapon inference.
+- `HitData.m_backstabBonus > 1` marks a sneak attack.
+- `Humanoid` does **not** override `Character.Damage` or `Character.OnDeath`, so patching the base
+  catches all creatures. `Player` *does* override `OnDeath`.
+- `Character.GetLevel()` returns 1 for unstarred, 2 for 1★, 3 for 2★.
+- `GlobalKeys` enum only covers the first five boss defeats; `defeated_queen` / `defeated_fader`
+  must be read with the string overload of `GetGlobalKey`.
+- Useful members: `Character.IsBoss()`, `IsTamed()`, `IsPlayer()`, `GetAllCharacters()`,
+  `ZNet.GetWorldUID()`, `SkillsDialog.m_elements` (parallel to `GetSkillList()`).
+
+A Mono.Cecil-based inspector was used to confirm all of the above against
+`assembly_valheim.dll` rather than working from memory.
 
 ## Multiplayer
 

@@ -114,14 +114,42 @@ boss fight plus some field work. Rank 5 is a long-tail number reached over a ful
 These values are a **first pass** — the ratios matter more than the absolutes, and they should be
 config-exposed so the server can retune without a rebuild.
 
-## Implementation requirements
+## Implementation — `IMPLEMENTED` Phase 1
 
 - **Server-authoritative.** Clients never write Proven. See [07](07-technical-architecture.md).
-- Stored per character, server-side, keyed by player ID + character name. Explicitly not in vanilla
-  skills data.
-- Must survive death, world reload, and server restart.
-- Requires damage attribution (which weapon/skill landed the killing blow) and boss-fight state
-  tracking.
+- Stored per player ID, server-side, in `BepInEx/config/OldWays/proven_<worldUID>.dat`. Explicitly
+  not in vanilla skills data. Written atomically (temp file + swap) and saved on world save and
+  shutdown.
+- **Damage attribution turned out to be the easy part.** Vanilla's own `HitData.m_skill` carries the
+  skill the game will award XP to, so there is no need to infer the weapon from equipment or
+  animation state. The last tracked hit on a creature is recorded and read back on death. DoT and
+  environmental kills carry no attacker and so award nothing — which is the desired behavior anyway.
+- Boss-fight state uses `Character.IsBoss()` over `Character.GetAllCharacters()` within 60 m.
+
+### Known limitation: kill reports are client-originated
+
+In Valheim a creature's ZDO is owned by whichever client is engaged with it, so **its death runs on
+that client, not on the dedicated server**. There is no server-side hook that observes every kill.
+The owning client therefore reports the kill and the server decides what it is worth.
+
+What this still buys — everything the system was created for: the server owns the weights, tier
+gating, diminishing returns, thresholds and storage, so Proven cannot be granted by `raiseskill`, by
+editing a local file, or by changing config. What it does not buy: a modified client could forge kill
+reports. That cannot be fully closed within Valheim's ownership model. A rate limit (30 reports /
+10 s per peer) blunts the crude version.
+
+### Unstarred creatures award nothing
+
+A consequence of the weights, worth stating plainly: outside a boss fight, only 1★ and 2★ kills earn
+Proven. Killing ordinary creatures earns zero. This is on-theme — you are proven by trial, not by
+volume — but it means rank 1 is roughly 15 two-star kills, and a player who never fights starred
+creatures will never unlock a power.
+
+### Player tier is world-wide, not per-player
+
+`ProgressionTier.PlayerTier()` reads vanilla boss-defeat global keys, which are **world state**, not
+per-character. On a shared server a new player inherits the server's progression tier, so low-tier
+creatures stop awarding them Proven immediately. Accepted for now; revisit if it hurts newcomers.
 
 ## Decision log
 
@@ -133,3 +161,5 @@ config-exposed so the server can retune without a rebuild.
 | 2026-08-06 | **Permanent**, no decay. |
 | 2026-08-06 | 5-rank ladder; Rank 1 unlocks, Ranks 2–5 drive the enemy reaction curve. |
 | 2026-08-06 | Weights, tier multiplier, and DR curve set as first-pass proposed values. |
+| 2026-08-06 | **Phase 1 implemented.** Attribution via `HitData.m_skill`; store per world UID; `proven` console command. |
+| 2026-08-06 | Highest applicable weight wins per kill rather than summing — stacking boss-fight on 2★ would break pacing. |

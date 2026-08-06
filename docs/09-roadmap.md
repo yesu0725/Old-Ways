@@ -27,23 +27,38 @@ go. `DECIDED 2026-08-06`. Each phase is independently testable in-game before th
 Outstanding admin, not blocking Phase 1: the GitHub repo itself still needs creating and a first
 push. **No LICENSE by decision** ([07](07-technical-architecture.md)) — not a todo.
 
-## Phase 1 — Proven core + trial log  `NEXT`
+## Phase 1 — Proven core + trial log  `CODE COMPLETE, UNTESTED IN-GAME`
 
 The foundation everything else depends on. Nothing gates on nothing.
 
-Suggested order within the phase, riskiest first:
+- [x] **Damage attribution** — `Patches/KillAttributionPatch.cs`. Far less painful than feared:
+      vanilla's `HitData.m_skill` already carries the skill, so no weapon inference is needed.
+- [x] Storage + server authority — `Proven/ProvenStore.cs`, `Proven/ProvenRpc.cs`. Atomic writes,
+      saved on world save and shutdown, keyed per world UID.
+- [x] PP awards, tier multiplier, DR window, hard exclusions — `ProvenStore.AwardKill`,
+      `Proven/ProgressionTier.cs`.
+- [x] Rank ladder + Old Ways Presence — `Proven/ProvenRecord.cs`.
+- [x] Skills-screen trial log — `UI/TrialLog.cs`, plus a `proven` console command
+      (`UI/ProvenCommand.cs`) for verification.
+- [ ] **In-game verification** — nothing here has been run yet.
 
-1. **Damage attribution** — which skill gets credit for a killing blow. Most failure-prone piece in
-   the mod (DoTs, in-flight projectiles, pet/summon damage). If this can't be made reliable, the
-   whole Proven design needs rethinking, so it goes first.
-2. Storage + server authority, surviving death/reload/restart.
-3. PP awards, tier multiplier, DR window, hard exclusions.
-4. Rank ladder + Old Ways Presence.
-5. Skills-screen trial log.
+Discovered during implementation and written up in [03](03-proven-system.md): kill reports are
+necessarily client-originated (ZDO ownership), unstarred kills award nothing, and player tier is
+world-wide rather than per-character.
 
-**Acceptance test:** earn Proven, see it in the skills screen, restart the server, it's still there —
-and `raiseskill` moves the vanilla skill without moving Proven by a single point. That last one is
-the whole reason the system exists; the test profile already has server_devcommands for it.
+**Acceptance test** (run these in the test profile):
+
+1. `proven` — trial log prints, everything Untested.
+2. Kill a 1★ or 2★ creature with a tracked weapon. **Unstarred creatures award nothing** — use
+   `spawn Greydwarf 1 2` for a 2★ if none are handy.
+3. `proven` again — points moved on that weapon's skill only.
+4. `raiseskill swords 100`, then `proven`. **Vanilla skill jumps to 100; Proven does not move.**
+   This is the whole reason the system exists.
+5. Open the skills screen — Proven shows on the tracked rows.
+6. Restart the server, `proven` again — the value survived.
+
+Log lines to watch for in the BepInEx console: `[Proven] server authority online`, and
+`[Proven] player <id> +N <skill>` on each qualifying kill.
 
 - PP tracking per vanilla skill, server-authoritative.
 - Damage attribution → which skill gets credit for a killing blow (the riskiest piece; build it first).

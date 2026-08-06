@@ -47,6 +47,10 @@ namespace OldWays
             Log.LogInfo($"Harmony patches applied: {_harmony.GetPatchedMethods().CountOrZero()}");
             Log.LogInfo($"ServerSync active — config is server-authoritative, " +
                         $"lock={OldWaysConfig.LockConfig.Value}, min client version={PluginVersion}.");
+            Log.LogInfo($"Proven: {ProvenSkills.Tracked.Length} tracked skills, " +
+                        $"rank 1 at {OldWaysConfig.RankThreshold1.Value} PP " +
+                        $"+ vanilla skill {OldWaysConfig.SoftSkillPrerequisite.Value}. " +
+                        $"Type 'proven' in the console to see your trial log.");
 
             if (!OldWaysConfig.ModEnabled.Value)
             {
