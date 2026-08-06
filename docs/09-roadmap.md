@@ -5,7 +5,7 @@ Status: `DECIDED` in shape (2026-08-06)
 v1 **ships** all 13 weapon families together (handoff §4), but it is **built in phases** — not in one
 go. `DECIDED 2026-08-06`. Each phase is independently testable in-game before the next starts.
 
-## Phase 0 — Scaffold  `IN PROGRESS`
+## Phase 0 — Scaffold  `COMPLETE 2026-08-06`
 
 - [x] Verify Valheim build and BepInEx version — build 21981590, BepInEx 5.4.23.x ([07](07-technical-architecture.md))
 - [x] Git init, `main` branch, `.gitignore` excluding game assemblies and build output
@@ -19,15 +19,31 @@ go. `DECIDED 2026-08-06`. Each phase is independently testable in-game before th
       assembly publicizer added; client version-matching on
 - [x] Every build auto-deploys to the r2modman "Mod Test Profile" (dll + pdb)
 - [x] Deep North boss confirmed **not to exist** — [04](04-boss-reactions.md) roster complete at 7
-- [ ] Confirm the plugin actually loads in-game (launch the test profile, check the BepInEx log
-      for the version line)
-- [ ] Git remote
+- [x] **Plugin confirmed loading in the test profile** — Phase 0 exit criterion met
+- [x] Git repo, `.gitattributes`, `origin` set to `github.com/yesu0725/Old-Ways`
 
-**Exit:** an empty plugin loads on the server and logs its version.
+**Exit:** an empty plugin loads on the server and logs its version. ✅
 
-## Phase 1 — Proven core + trial log
+Outstanding admin, not blocking Phase 1: the GitHub repo itself still needs creating and a first
+push; no LICENSE file chosen yet.
+
+## Phase 1 — Proven core + trial log  `NEXT`
 
 The foundation everything else depends on. Nothing gates on nothing.
+
+Suggested order within the phase, riskiest first:
+
+1. **Damage attribution** — which skill gets credit for a killing blow. Most failure-prone piece in
+   the mod (DoTs, in-flight projectiles, pet/summon damage). If this can't be made reliable, the
+   whole Proven design needs rethinking, so it goes first.
+2. Storage + server authority, surviving death/reload/restart.
+3. PP awards, tier multiplier, DR window, hard exclusions.
+4. Rank ladder + Old Ways Presence.
+5. Skills-screen trial log.
+
+**Acceptance test:** earn Proven, see it in the skills screen, restart the server, it's still there —
+and `raiseskill` moves the vanilla skill without moving Proven by a single point. That last one is
+the whole reason the system exists; the test profile already has server_devcommands for it.
 
 - PP tracking per vanilla skill, server-authoritative.
 - Damage attribution → which skill gets credit for a killing blow (the riskiest piece; build it first).

@@ -55,8 +55,8 @@ mastery. Nothing is bolted on: every effect finishes something vanilla started.
   on; the **whole encounter then scales off the highest Presence present**. A veteran raises the fight
   for everyone in it — deliberate, see [04](docs/04-boss-reactions.md).
 - **Server-authoritative and server-required.** Clients never write Proven.
-- **Current status: [Phase 0](docs/09-roadmap.md) in progress** — plugin scaffold builds and loads,
-  config bound, no gameplay systems yet.
+- **Current status: [Phase 0](docs/09-roadmap.md) complete** — plugin builds, loads in the test
+  profile, config is ServerSync'd. No gameplay systems yet. **Phase 1 (Proven core) is next.**
 
 ## Build
 

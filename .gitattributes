@@ -1,0 +1,14 @@
+# Normalize line endings so the repo stays consistent across machines and
+# git stops warning on every commit.
+* text=auto eol=lf
+
+*.cs      text eol=lf diff=csharp
+*.csproj  text eol=lf
+*.props   text eol=lf
+*.md      text eol=lf
+
+# Never touch binaries
+*.dll binary
+*.pdb binary
+*.png binary
+*.zip binary
