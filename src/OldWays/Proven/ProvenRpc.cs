@@ -148,7 +148,7 @@ namespace OldWays
 
         // ---- server -> client -----------------------------------------------------------
 
-        private static void SyncTo(long peer, long playerId)
+        internal static void SyncTo(long peer, long playerId)
         {
             if (ZRoutedRpc.instance == null) return;
 

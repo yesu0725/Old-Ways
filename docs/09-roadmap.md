@@ -75,14 +75,34 @@ Log lines to watch for in the BepInEx console: `[Proven] server authority online
 **Exit:** a player can earn Proven, see it in the skills screen, and it survives a server restart.
 Console `raiseskill` does nothing to it. No powers exist yet.
 
-## Phase 2 — Vertical slice: Swords
+## Phase 2 — Vertical slice: Swords  `CODE COMPLETE, UNTESTED IN-GAME`
 
 One family end to end, to prove the whole pipeline before committing to twelve more.
 
-- Swords: parry → guaranteed critical stagger, gated on Swords R1.
-- Validates: gate read, trigger off an existing input, multiplayer replication, config toggle.
+- [x] `Powers/PowerGate.cs` — the shared gate every later power reuses
+- [x] `Powers/SwordRiposte.cs` — parry → guaranteed critical stagger, gated on Swords R1
+- [x] Level-2 config toggle + tunable window
+- [x] `proven_grant` admin test command so rank 1 can be reached without grinding
+- [ ] **In-game verification**
 
-**Exit:** the sword power works on the live server, correctly locked before R1 and unlocked after.
+**Exit:** the sword power works, correctly locked before R1 and unlocked after.
+
+### Acceptance test
+
+```
+proven                          # confirm Swords is Untested, rank 0
+```
+1. Parry something and hit it with a sword — **nothing special should happen**. The log shows
+   `parry landed but Riposte is locked`. This is the "locked before R1" half and matters as much
+   as the unlock.
+2. `proven_grant Swords 150` — reaches rank 1. Requires vanilla Swords ≥ 30 as well.
+3. `proven` — Swords now reads Blooded, Riposte UNLOCKED.
+4. Parry again, then hit with a sword within 3 s — the target staggers outright.
+
+Log lines: `[Riposte] block: timer=… -> PARRY`, then `riposte armed`, then `riposte staggered '…'`.
+
+**If parries never register as PARRY**, the `block: timer=…` line will show what `m_blockTimer`
+actually reads at that moment — that number tells us how to fix the detection.
 
 ## Phase 3 — Remaining melee
 

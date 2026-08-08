@@ -15,7 +15,7 @@ of BiomeLords' Forsaken Power slot.
 
 | Weapon / School | Trigger (existing input) | New capability | Gate |
 |---|---|---|---|
-| Swords | Parry → immediate attack | Guaranteed **critical stagger** on the follow-up hit | Swords R1 |
+| Swords | Parry → immediate attack | Guaranteed **critical stagger** on the follow-up hit | Swords R1 · `IMPLEMENTED` |
 | Knives | Sneak-attack kill | **Full stamina refund** + brief near-silent footsteps | Knives R1 |
 | Clubs | Charged heavy swing | Small **stagger-radius pulse** on impact (extends existing knockback) | Clubs R1 |
 | Axes | Heavy swing vs. already-staggered, low-HP target | **Executes** the target outright | Axes R1 |
@@ -32,6 +32,30 @@ of BiomeLords' Forsaken Power slot.
 Gates are Proven ranks per **vanilla skill** ([03](03-proven-system.md)). Rank 1 = 150 PP + vanilla
 skill ≥ 30. **Shields are the exception**: Blocking is a single vanilla skill, so its three powers
 stage up the rank ladder (R1 → R2 → R3) rather than all unlocking at once. `DECIDED 2026-08-06`
+
+## Implementation — the power pipeline
+
+Established by the Phase 2 vertical slice (Swords) and reused by every later power:
+
+- **`Powers/PowerGate.cs`** — the single place a power asks "am I allowed to fire?". Checks the
+  master switch, the category switch, Proven rank, and (for rank 1 only) the vanilla skill
+  prerequisite. Defined once rather than thirteen times.
+- **One file per power** in `Powers/`, each with its own level-2 config toggle plus any tuning value
+  it needs.
+- Powers are **local-player-only** and never fire against another player.
+- The client evaluates its own gate against the Proven record the server pushed it. That record is
+  not client-writable, so `raiseskill`, save editing and config editing do not open a power. A
+  modified client could still fire one — the same limit as kill reports ([07](07-technical-architecture.md)).
+
+### Swords — Riposte (`Powers/SwordRiposte.cs`)
+
+Perfect block → the next sword hit within a window (default 3 s) calls `Character.Stagger()`
+directly, so it lands regardless of the target's accumulated stagger damage or resistance.
+
+Parry detection reads the same two fields vanilla uses to decide a perfect block — `m_blockTimer`
+against the static `m_perfectBlockInterval` — rather than re-deriving the timing. One parry buys
+exactly one riposte: the armed state is spent on the next qualifying hit whether or not the target
+survives.
 
 ## Notes per family
 
@@ -69,3 +93,4 @@ player's own power fires. See [04](04-boss-reactions.md).
 | (handoff) | No new hotkey; every trigger reuses an existing input. |
 | 2026-08-06 | Gates are per-vanilla-skill Proven ranks; shields stage across Blocking R1/R2/R3. |
 | 2026-08-06 | A player's own power is never gated on other players' Proven. |
+| 2026-08-08 | **Phase 2: Swords Riposte implemented.** Power pipeline established via `PowerGate`. |

@@ -24,6 +24,7 @@ namespace OldWays
         private const string SecGeneral = "1 - General";
         private const string SecProven = "2 - Proven";
         private const string SecReactions = "3 - Enemy Reactions";
+        private const string SecPowers = "4 - Weapon Powers";
 
         internal static readonly ConfigSync SyncManager = new(Plugin.PluginGuid)
         {
@@ -80,6 +81,12 @@ namespace OldWays
         internal static ConfigEntry<float> ReactionChanceBase;
         internal static ConfigEntry<float> ReactionChancePerRank;
 
+        // ---- Level 2: per-power toggles (docs/02) --------------------------------------
+        // One entry per power, added by the phase that implements it.
+
+        internal static ConfigEntry<bool> SwordRiposteEnabled;
+        internal static ConfigEntry<float> SwordRiposteWindow;
+
         internal static void Bind(ConfigFile cfg)
         {
             LockConfig = cfg.Bind(SecGeneral, "Lock Configuration", true,
@@ -134,6 +141,11 @@ namespace OldWays
                 "chance = base + perRank * encounterPresence, where presence is the HIGHEST " +
                 "Proven rank among players in the encounter. Presence 0 means fully vanilla.");
             ReactionChancePerRank = Bind(cfg, SecReactions, "Reaction Chance Per Rank", 0.12f, "");
+
+            SwordRiposteEnabled = Bind(cfg, SecPowers, "Swords - Riposte", true,
+                "Swords, Proven rank 1: a sword hit shortly after a parry is a guaranteed critical stagger.");
+            SwordRiposteWindow = Bind(cfg, SecPowers, "Swords - Riposte Window", 3.0f,
+                "Seconds after a parry during which the next sword hit ripostes.");
         }
 
         /// <summary>

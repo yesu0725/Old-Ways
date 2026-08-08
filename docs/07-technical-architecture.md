@@ -131,6 +131,23 @@ A Mono.Cecil-based inspector was used to confirm all of the above against
 - Creature gating re-evaluates on **target change**; with large packs this needs a profiling pass
   before Phase 8 ships.
 
+## Admin test command — a deliberate hole, fenced
+
+`proven_grant <skill> <points>` exists so a power can be verified without the ~15 starred kills that
+rank 1 legitimately costs. It is the only path that writes Proven without earning it, so it is
+fenced on every side:
+
+| Fence | Why |
+|---|---|
+| `isCheat: true` | disabled entirely on servers that disallow cheats |
+| `onlyAdmin: true` (client) | hides it from ordinary players — **convenience, not security** |
+| **Server re-verifies the sender is on the admin list** | the real boundary. A modified client can call the RPC directly, so the server never trusts the client-side flag |
+| Applied server-side through the same store as a real award | client and server cannot desync |
+| Every use logged at **warning** level with the granting peer and player id | grants are auditable after the fact |
+| Grants **points, not ranks** | the rank ladder and thresholds stay the single source of truth |
+
+Refusals are logged too, so an attempt to bypass the client-side flag leaves a trace.
+
 ## Known risks
 
 - **Sibling-mod compatibility.** BiomeLords, Lost Scrolls II, and this mod all patch

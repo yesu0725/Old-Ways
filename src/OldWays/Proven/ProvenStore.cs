@@ -135,6 +135,19 @@ namespace OldWays
             return award;
         }
 
+        /// <summary>
+        /// Direct grant, bypassing the earning rules. Only the admin test command reaches this
+        /// (see ProvenGrantCommand) — the normal path is AwardKill.
+        /// </summary>
+        internal static int GrantPoints(long playerId, Skills.SkillType skill, int points)
+        {
+            if (!ProvenSkills.IsTracked(skill) || points <= 0) return 0;
+            int total = Get(playerId).AddPoints(skill, points);
+            _dirty = true;
+            Save();     // an admin grant is rare and worth persisting immediately
+            return total;
+        }
+
         private static float ConsumeDiminishingReturns(long playerId, string prefab)
         {
             if (string.IsNullOrEmpty(prefab)) prefab = "unknown";
