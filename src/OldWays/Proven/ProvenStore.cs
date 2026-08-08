@@ -43,10 +43,19 @@ namespace OldWays
         /// Applies the full docs/03 award pipeline for a kill and returns the points actually
         /// granted (0 if the kill earned nothing). Server-side only.
         /// </summary>
+        private static void Trace(string message)
+        {
+            if (OldWaysConfig.VerboseLogging.Value) Plugin.Log.LogInfo("[Proven] " + message);
+        }
+
         internal static int AwardKill(long playerId, string victimPrefab, int victimLevel,
                                       Skills.SkillType skill, bool duringBossFight, bool sneakKill)
         {
-            if (!ProvenSkills.IsTracked(skill)) return 0;
+            if (!ProvenSkills.IsTracked(skill))
+            {
+                Trace($"no award: skill {skill} is not a tracked Proven skill.");
+                return 0;
+            }
 
             // --- base weight -----------------------------------------------------------
             // Highest applicable weight wins rather than summing; stacking a boss-fight kill on
@@ -62,20 +71,36 @@ namespace OldWays
                 basePoints = Math.Max(basePoints, OldWaysConfig.PpBossFightKill.Value);
 
             // Unstarred trash outside a boss fight is not a trial. No credit, by design.
-            if (basePoints <= 0) return 0;
+            if (basePoints <= 0)
+            {
+                Trace($"no award: '{victimPrefab}' was level {victimLevel} (1=unstarred, 2=1-star, 3=2-star) " +
+                      "outside a boss fight. Only starred kills and boss-fight kills are trials.");
+                return 0;
+            }
 
             // --- tier gate -------------------------------------------------------------
             int playerTier = ProgressionTier.PlayerTier();
             int creatureTier = ProgressionTier.CreatureTier(victimPrefab, playerTier);
             float tierMult = ProgressionTier.Multiplier(creatureTier, playerTier);
-            if (tierMult <= 0f) return 0;
+            if (tierMult <= 0f)
+            {
+                Trace($"no award: '{victimPrefab}' is tier {creatureTier} and you are tier {playerTier} " +
+                      $"({playerTier - creatureTier} tiers above it). Creatures two or more tiers below " +
+                      "you earn nothing — this is the anti-farm rule, not a bug.");
+                return 0;
+            }
 
             // --- diminishing returns ---------------------------------------------------
             // Boss fights are a discrete trial, not a farm loop, so they are exempt.
             float drMult = duringBossFight ? 1f : ConsumeDiminishingReturns(playerId, victimPrefab);
 
             int award = (int)Math.Round(basePoints * tierMult * drMult, MidpointRounding.AwayFromZero);
-            if (award <= 0) return 0;
+            if (award <= 0)
+            {
+                Trace($"no award: {basePoints} base x {tierMult:0.##} tier x {drMult:0.##} diminishing " +
+                      "returns rounded to zero. Kill something you have not killed recently.");
+                return 0;
+            }
 
             ProvenRecord record = Get(playerId);
             int before = record.GetPoints(skill);
@@ -91,9 +116,9 @@ namespace OldWays
             }
             else
             {
-                Plugin.Log.LogDebug($"[Proven] player {playerId} +{award} {skill} ({before} -> {after}) " +
-                                    $"[{victimPrefab} lvl{victimLevel} tier{creatureTier}/{playerTier} " +
-                                    $"tier x{tierMult:0.##} dr x{drMult:0.##}]");
+                Trace($"player {playerId} +{award} {skill} ({before} -> {after}) " +
+                      $"[{victimPrefab} lvl{victimLevel} tier{creatureTier}/{playerTier} " +
+                      $"tier x{tierMult:0.##} dr x{drMult:0.##}]");
             }
 
             return award;

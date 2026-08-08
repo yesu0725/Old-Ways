@@ -43,6 +43,10 @@ namespace OldWays
             sb.AppendLine($"Old Ways Presence: {record.Presence()} ({ProvenSkills.RankName(record.Presence())})");
             if (!authoritative && !ProvenRpc.LocalRecordReceived)
                 sb.AppendLine("(no sync from the server yet — earn Proven once to populate this)");
+
+            int tier = ProgressionTier.PlayerTier();
+            sb.AppendLine($"Progression tier: {tier} — creatures below tier {tier - 1} earn you nothing.");
+            sb.AppendLine("Only 1-star, 2-star and boss-fight kills are trials; unstarred kills earn nothing.");
             sb.AppendLine();
 
             Skills skills = player.GetSkills();

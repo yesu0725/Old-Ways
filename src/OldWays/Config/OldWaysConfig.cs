@@ -44,6 +44,7 @@ namespace OldWays
         // ---- Level 1: category toggles ------------------------------------------------
 
         internal static ConfigEntry<bool> ModEnabled;
+        internal static ConfigEntry<bool> VerboseLogging;
         internal static ConfigEntry<bool> SkillTweaksEnabled;
         internal static ConfigEntry<bool> WeaponPowersEnabled;
         internal static ConfigEntry<bool> BossReactionsEnabled;
@@ -89,6 +90,9 @@ namespace OldWays
 
             ModEnabled = Bind(cfg, SecGeneral, "Enabled", true,
                 "Master switch. False disables every system in the mod.");
+            VerboseLogging = Bind(cfg, SecGeneral, "Verbose Logging", true,
+                "Logs every step of the Proven award pipeline, including why a kill earned nothing. " +
+                "On by default while Phase 1 is being verified; turn off for a live server.");
             SkillTweaksEnabled = Bind(cfg, SecGeneral, "Skill Mastery Tweaks", true,
                 "Vanilla-skill threshold payoffs. Not gated behind Proven. See docs/01.");
             WeaponPowersEnabled = Bind(cfg, SecGeneral, "Weapon Mastery Powers", true,

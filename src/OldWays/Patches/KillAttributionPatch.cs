@@ -34,6 +34,11 @@ namespace OldWays
         private static float _lastSweep;
         private const float HitMemorySeconds = 10f;
 
+        private static void Trace(string message)
+        {
+            if (OldWaysConfig.VerboseLogging.Value) Plugin.Log.LogInfo("[Attribution] " + message);
+        }
+
         [HarmonyPatch(typeof(Character), nameof(Character.Damage))]
         private static class RecordLastHit
         {
@@ -42,8 +47,17 @@ namespace OldWays
                 if (__instance == null || hit == null) return;
                 if (!OldWaysConfig.ModEnabled.Value) return;
                 if (__instance.IsPlayer()) return;              // we only care about creature deaths
-                if (!ProvenSkills.IsTracked(hit.m_skill)) return;
-                if (!hit.HaveAttacker()) return;
+
+                if (!hit.HaveAttacker())
+                {
+                    Trace($"hit on '{__instance.name}' has no attacker (DoT/environment) — not a trial.");
+                    return;
+                }
+                if (!ProvenSkills.IsTracked(hit.m_skill))
+                {
+                    Trace($"hit on '{__instance.name}' used skill {hit.m_skill}, which is not tracked.");
+                    return;
+                }
 
                 LastHits[__instance.GetInstanceID()] = new LastHit
                 {
@@ -55,6 +69,7 @@ namespace OldWays
                     Sneak = hit.m_backstabBonus > 1f,
                 };
 
+                Trace($"recorded {hit.m_skill} hit on '{__instance.name}' (level {__instance.GetLevel()}).");
                 Sweep();
             }
         }
@@ -69,12 +84,21 @@ namespace OldWays
                 if (__instance.IsPlayer()) return;
 
                 int id = __instance.GetInstanceID();
-                if (!LastHits.TryGetValue(id, out LastHit last)) return;
+                if (!LastHits.TryGetValue(id, out LastHit last))
+                {
+                    Trace($"'{__instance.name}' died with no recorded tracked hit — nothing to credit.");
+                    return;
+                }
                 LastHits.Remove(id);
 
                 // Stale killing blow — something else finished it (drowning, fire, another player's
                 // DoT). Not a trial.
-                if (Time.time - last.Time > HitMemorySeconds) return;
+                if (Time.time - last.Time > HitMemorySeconds)
+                {
+                    Trace($"'{__instance.name}' died {Time.time - last.Time:0.#}s after your last hit — " +
+                          "something else finished it.");
+                    return;
+                }
 
                 Player local = Player.m_localPlayer;
                 if (local == null) return;
@@ -83,13 +107,24 @@ namespace OldWays
                 // several clients is not reported several times.
                 ZNetView localView = local.GetComponent<ZNetView>();
                 if (localView == null || !localView.IsValid()) return;
-                if (last.Attacker != localView.GetZDO().m_uid) return;
+                if (last.Attacker != localView.GetZDO().m_uid)
+                {
+                    Trace($"'{__instance.name}' was killed by someone else — not reporting.");
+                    return;
+                }
 
                 // Anti-farm hard exclusions (docs/03).
-                if (__instance.IsTamed()) return;
+                if (__instance.IsTamed())
+                {
+                    Trace($"'{__instance.name}' was tamed — no credit.");
+                    return;
+                }
 
                 string prefab = PrefabName(__instance);
                 int level = __instance.GetLevel();
+
+                Trace($"reporting kill: prefab='{prefab}' level={level} skill={last.Skill} " +
+                      $"bossFight={IsBossFightActive(local)} sneak={last.Sneak}");
 
                 ProvenRpc.ReportKill(
                     local.GetPlayerID(),
