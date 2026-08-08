@@ -55,7 +55,7 @@ namespace OldWays
             switch (skill)
             {
                 case Skills.SkillType.Swords:
-                    yield return new KeyValuePair<int, string>(1, "Riposte — a parry follow-up is a guaranteed critical stagger");
+                    yield return new KeyValuePair<int, string>(1, "Duelist's Guard — your sword blocks and parries like a shield");
                     break;
                 case Skills.SkillType.Knives:
                     yield return new KeyValuePair<int, string>(1, "Ghost Step — a sneak-attack kill refunds stamina and muffles your steps");

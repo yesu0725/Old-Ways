@@ -80,8 +80,8 @@ Console `raiseskill` does nothing to it. No powers exist yet.
 One family end to end, to prove the whole pipeline before committing to twelve more.
 
 - [x] `Powers/PowerGate.cs` — the shared gate every later power reuses
-- [x] `Powers/SwordRiposte.cs` — parry → guaranteed critical stagger, gated on Swords R1
-- [x] Level-2 config toggle + tunable window
+- [x] `Powers/SwordDuelistsGuard.cs` — sword blocks/parries at shield strength, gated on Swords R1
+- [x] Level-2 config toggle + tunable multiplier
 - [x] `proven_grant` admin test command so rank 1 can be reached without grinding
 - [ ] **In-game verification**
 
@@ -89,20 +89,17 @@ One family end to end, to prove the whole pipeline before committing to twelve m
 
 ### Acceptance test
 
-```
-proven                          # confirm Swords is Untested, rank 0
-```
-1. Parry something and hit it with a sword — **nothing special should happen**. The log shows
-   `parry landed but Riposte is locked`. This is the "locked before R1" half and matters as much
-   as the unlock.
-2. `proven_grant Swords 150` — reaches rank 1. Requires vanilla Swords ≥ 30 as well.
-3. `proven` — Swords now reads Blooded, Riposte UNLOCKED.
-4. Parry again, then hit with a sword within 3 s — the target staggers outright.
+Equip a sword and **no shield** throughout.
 
-Log lines: `[Riposte] block: timer=… -> PARRY`, then `riposte armed`, then `riposte staggered '…'`.
-
-**If parries never register as PARRY**, the `block: timer=…` line will show what `m_blockTimer`
-actually reads at that moment — that number tells us how to fix the detection.
+1. `proven` — Swords should read Untested.
+2. Block a Greydwarf swing with the sword. Your guard should break or drain heavily; log reads
+   `Duelist's Guard inactive`. **This half matters as much as the unlock.**
+3. `proven_grant Swords 150` — reaches rank 1 (needs vanilla Swords ≥ 30 too).
+4. `proven` — Swords reads Blooded, Duelist's Guard UNLOCKED.
+5. Block the same attack again — the guard holds, and a well-timed parry throws the attacker off.
+   Log reads `sword PARRY … Duelist's Guard ACTIVE`.
+6. Try a troll or something heavier to see where the ceiling sits, and tune
+   `Swords - Duelist's Guard Multiplier` if 2.5 is too weak or too strong.
 
 ## Phase 3 — Remaining melee
 

@@ -15,7 +15,7 @@ of BiomeLords' Forsaken Power slot.
 
 | Weapon / School | Trigger (existing input) | New capability | Gate |
 |---|---|---|---|
-| Swords | Parry → immediate attack | Guaranteed **critical stagger** on the follow-up hit | Swords R1 · `IMPLEMENTED` |
+| Swords | Block / parry with the sword itself | **Duelist's Guard** — sword blocks and parries at shield strength | Swords R1 · `IMPLEMENTED` |
 | Knives | Sneak-attack kill | **Full stamina refund** + brief near-silent footsteps | Knives R1 |
 | Clubs | Charged heavy swing | Small **stagger-radius pulse** on impact (extends existing knockback) | Clubs R1 |
 | Axes | Heavy swing vs. already-staggered, low-HP target | **Executes** the target outright | Axes R1 |
@@ -47,15 +47,31 @@ Established by the Phase 2 vertical slice (Swords) and reused by every later pow
   not client-writable, so `raiseskill`, save editing and config editing do not open a power. A
   modified client could still fire one — the same limit as kill reports ([07](07-technical-architecture.md)).
 
-### Swords — Riposte (`Powers/SwordRiposte.cs`)
+### Swords — Duelist's Guard (`Powers/SwordDuelistsGuard.cs`)
 
-Perfect block → the next sword hit within a window (default 3 s) calls `Character.Stagger()`
-directly, so it lands regardless of the target's accumulated stagger damage or resistance.
+Blocking and parrying with a sword works at shield strength: block power and deflection force are
+multiplied (default ×2.5). Vanilla already lets you block with a sword — it is simply so weak that
+nobody does, so the input exists and goes unused. Mastery makes shieldless sword play viable.
 
-Parry detection reads the same two fields vanilla uses to decide a perfect block — `m_blockTimer`
-against the static `m_perfectBlockInterval` — rather than re-deriving the timing. One parry buys
-exactly one riposte: the armed state is spent on the next qualifying hit whether or not the target
-survives.
+Both `GetBlockPower` and `GetDeflectionForce` are boosted. Block power alone would absorb the hit
+but fail to throw the attacker off, which is half a parry and would feel broken.
+
+**Implementation constraint worth remembering:** this patches the *methods*, never the
+`m_blockPower` / `m_deflectionForce` fields. Those live on `SharedData`, which is shared by every
+instance of an item type — writing to them would permanently buff every sword in the world for every
+player, and would persist after the power was disabled.
+
+### Cut: Riposte (the original Swords power)
+
+The handoff specified "parry → guaranteed critical stagger on the follow-up hit." **Cut 2026-08-08
+after implementation, as a no-op.** Vanilla already staggers an attacker on a perfect block, and
+already applies `c_StaggerDamageBonus` to hits against a staggered target — so the power staggered
+something already staggered and claimed credit for a bonus the game was going to give anyway. A
+player could not perceive it.
+
+Kept here as a warning: a power that *reads* well in a design table can still be invisible in play.
+The test for the remaining twelve is not "does this sound good" but "what does vanilla already do
+here, and is there anything left for us to add?"
 
 ## Notes per family
 
@@ -93,4 +109,6 @@ player's own power fires. See [04](04-boss-reactions.md).
 | (handoff) | No new hotkey; every trigger reuses an existing input. |
 | 2026-08-06 | Gates are per-vanilla-skill Proven ranks; shields stage across Blocking R1/R2/R3. |
 | 2026-08-06 | A player's own power is never gated on other players' Proven. |
-| 2026-08-08 | **Phase 2: Swords Riposte implemented.** Power pipeline established via `PowerGate`. |
+| 2026-08-08 | **Phase 2 power pipeline established** via `PowerGate`. |
+| 2026-08-08 | **Riposte cut as a no-op** — vanilla already staggers on parry and already rewards hitting staggered targets. |
+| 2026-08-08 | **Swords power is now Duelist's Guard** — sword blocks/parries at shield strength, ×2.5 configurable. |

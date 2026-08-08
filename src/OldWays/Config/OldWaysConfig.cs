@@ -84,8 +84,8 @@ namespace OldWays
         // ---- Level 2: per-power toggles (docs/02) --------------------------------------
         // One entry per power, added by the phase that implements it.
 
-        internal static ConfigEntry<bool> SwordRiposteEnabled;
-        internal static ConfigEntry<float> SwordRiposteWindow;
+        internal static ConfigEntry<bool> SwordDuelistsGuardEnabled;
+        internal static ConfigEntry<float> SwordDuelistsGuardBlockMult;
 
         internal static void Bind(ConfigFile cfg)
         {
@@ -142,10 +142,11 @@ namespace OldWays
                 "Proven rank among players in the encounter. Presence 0 means fully vanilla.");
             ReactionChancePerRank = Bind(cfg, SecReactions, "Reaction Chance Per Rank", 0.12f, "");
 
-            SwordRiposteEnabled = Bind(cfg, SecPowers, "Swords - Riposte", true,
-                "Swords, Proven rank 1: a sword hit shortly after a parry is a guaranteed critical stagger.");
-            SwordRiposteWindow = Bind(cfg, SecPowers, "Swords - Riposte Window", 3.0f,
-                "Seconds after a parry during which the next sword hit ripostes.");
+            SwordDuelistsGuardEnabled = Bind(cfg, SecPowers, "Swords - Duelist's Guard", true,
+                "Swords, Proven rank 1: blocking and parrying with a sword works at shield strength.");
+            SwordDuelistsGuardBlockMult = Bind(cfg, SecPowers, "Swords - Duelist's Guard Multiplier", 2.5f,
+                "Multiplier applied to a sword's block power and deflection force. 2.5 puts a good " +
+                "sword roughly in shield territory; raise it if shieldless play still feels unviable.");
         }
 
         /// <summary>

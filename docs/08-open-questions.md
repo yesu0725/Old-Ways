@@ -5,6 +5,20 @@ decision and is logged there, then moves to Answered below.
 
 ## Open
 
+### Q21 — Audit the remaining 12 powers for no-ops
+Riposte was implemented, then cut on 2026-08-08 because vanilla already did both halves of it
+([02](02-weapon-mastery.md)). The other twelve came from the same handoff table and have had the same
+amount of scrutiny — none. Before each is built, check what vanilla already does at that trigger and
+whether anything is left to add.
+
+Ones that look most at risk on inspection:
+- **Clubs** "stagger-radius pulse" — clubs already knock back, and some already have AoE on heavy.
+- **Axes** "execute a staggered, low-HP target" — the stagger damage bonus may already be lethal there.
+- **Shields (parry)** "negate own stagger" — a perfect block may already do exactly this.
+- **Bows** "hold past full draw" — confirm the plateau is real and not already doing something.
+
+→ [02](02-weapon-mastery.md), and each of Phases 3–5 in [09](09-roadmap.md).
+
 ### Q19 — Defining "in the encounter"
 Encounter Presence takes the max across players *in the encounter*, but that set needs a definition:
 boss aggro list, a radius, or recent damage dealt. A radius alone lets a distant Rank 5 player passively
