@@ -46,10 +46,10 @@ The foundation everything else depends on. Nothing gates on nothing.
 Discovered during implementation and written up in [03](03-proven-system.md): kill reports are
 necessarily client-originated (ZDO ownership) and unstarred kills award nothing.
 
-**Verification also surfaced a live problem:** the first starred kill awarded nothing until the
-tester reset the world's boss keys. The tier gate was doing exactly what it was specified to do —
-which is how we learned the specification is wrong for a shared server. See "Player tier source" in
-[03](03-proven-system.md).
+**Verification also surfaced a live problem, since fixed:** the first starred kill awarded nothing
+until the tester reset the world's boss keys. The tier gate was doing exactly what it was specified
+to do — which is how we learned the specification was wrong for a shared server. Progression tier is
+now per-player rather than world state; see "Player tier source" in [03](03-proven-system.md).
 
 **Acceptance test** (run these in the test profile):
 

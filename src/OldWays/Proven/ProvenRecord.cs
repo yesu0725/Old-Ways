@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -12,6 +13,22 @@ namespace OldWays
     internal class ProvenRecord
     {
         private readonly Dictionary<Skills.SkillType, int> _points = new();
+
+        /// <summary>
+        /// This player's own progression tier: the highest-tier creature they have personally
+        /// killed. Deliberately NOT read from world boss keys — those are world state, so on an
+        /// established server a newcomer would inherit max tier and could never earn Proven from
+        /// anything (docs/03). Advances only, never falls.
+        /// </summary>
+        internal int Tier { get; private set; } = ProgressionTier.Meadows;
+
+        /// <summary>Raises the player's tier if this kill was higher than anything they had faced. Returns true if it moved.</summary>
+        internal bool RaiseTier(int creatureTier)
+        {
+            if (creatureTier <= Tier) return false;
+            Tier = creatureTier > ProgressionTier.Ashlands ? ProgressionTier.Ashlands : creatureTier;
+            return true;
+        }
 
         internal int GetPoints(Skills.SkillType skill)
         {
@@ -65,16 +82,20 @@ namespace OldWays
             }
         }
 
-        // ---- serialization: "1:150,6:920,8:40" ----------------------------------------
+        // ---- serialization: "T:3,1:150,6:920" -----------------------------------------
+        // "T:<n>" carries the player's tier. Records written before per-player tiering simply
+        // lack it and load at tier 1, which is the safe direction: they earn more, not less.
+
+        private const string TierKey = "T";
 
         internal string Serialize()
         {
             var sb = new StringBuilder();
+            sb.Append(TierKey).Append(':').Append(Tier.ToString(CultureInfo.InvariantCulture));
             foreach (KeyValuePair<Skills.SkillType, int> kv in _points)
             {
                 if (kv.Value <= 0) continue;
-                if (sb.Length > 0) sb.Append(',');
-                sb.Append((int)kv.Key).Append(':').Append(kv.Value.ToString(CultureInfo.InvariantCulture));
+                sb.Append(',').Append((int)kv.Key).Append(':').Append(kv.Value.ToString(CultureInfo.InvariantCulture));
             }
             return sb.ToString();
         }
@@ -86,6 +107,14 @@ namespace OldWays
 
             foreach (string pair in data.Split(','))
             {
+                if (pair.StartsWith(TierKey + ":", StringComparison.Ordinal))
+                {
+                    if (int.TryParse(pair.Substring(2), NumberStyles.Integer, CultureInfo.InvariantCulture, out int t))
+                        record.Tier = t < ProgressionTier.Meadows ? ProgressionTier.Meadows
+                                    : t > ProgressionTier.Ashlands ? ProgressionTier.Ashlands : t;
+                    continue;
+                }
+
                 string[] parts = pair.Split(':');
                 if (parts.Length != 2) continue;
                 if (!int.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out int skillId)) continue;

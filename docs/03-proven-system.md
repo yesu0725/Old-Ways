@@ -83,6 +83,8 @@ the creature's biome tier.
 | Same tier | 1.0 |
 | Above player tier | 1.5 |
 
+Player tier is **per-player**, not world state — see "Player tier source" below.
+
 ### Diminishing returns (anti-farm)
 
 Per creature prefab, on a rolling **10-minute** window:
@@ -145,7 +147,7 @@ Proven. Killing ordinary creatures earns zero. This is on-theme — you are prov
 volume — but it means rank 1 is roughly 15 two-star kills, and a player who never fights starred
 creatures will never unlock a power.
 
-### Player tier source — `BLOCKING`, confirmed in testing 2026-08-08
+### Player tier source — `DECIDED 2026-08-08`, per-player. `IMPLEMENTED`
 
 `ProgressionTier.PlayerTier()` reads vanilla boss-defeat global keys, which are **world state**, not
 per-character. This was flagged as `PROPOSED` and never signed off, and testing has now shown why it
@@ -158,13 +160,26 @@ earns that newcomer **zero**, forever. They can never reach Rank 1, so they can 
 power — on a mod whose entire premise is earning mastery through trial. Combined with "only starred
 kills count," the earn surface for a new player on a late-game server is close to nothing.
 
-This needs a decision before Phase 2 builds powers on top of it.
+**Resolution: progression tier is now per-player**, stored on the player's own `ProvenRecord` and
+advanced by the highest-tier creature they have personally killed. World boss keys are no longer
+consulted at all.
 
-**PROPOSED fix:** track progression tier **per player in our own store**, advanced by the
-highest-tier creature that player has actually killed. We already hold a server-side per-player
-record, so this costs nothing structurally, it is immune to console commands for the same reason
-Proven is, and it makes the anti-farm rule mean what it was meant to mean — *you* have outgrown this
-creature, rather than *someone on this server* has.
+- Everyone starts at tier 1 (Meadows) and grows into the gate.
+- Tier only ever rises, never falls.
+- The kill that promotes you is still **paid at the rate you earned it** — the gate is evaluated
+  before the promotion applies.
+- Immune to console commands for the same reason Proven is: it lives in the server-side store.
+- Records written before this change simply lack the tier field and load at tier 1. That is the
+  safe direction — an existing player earns more, not less, and climbs back within a few kills.
+
+The anti-farm rule now means what it was always meant to mean: *you* have outgrown this creature,
+rather than *someone on this server* has.
+
+| | Before | After |
+|---|---|---|
+| Source | World boss-defeat keys | Highest-tier creature this player killed |
+| Newcomer on a late-game server | Inherits max tier, can never earn | Starts at tier 1, earns normally |
+| Reset by `resetkeys` | Yes | No |
 
 ## Decision log
 
@@ -179,4 +194,5 @@ creature, rather than *someone on this server* has.
 | 2026-08-06 | **Phase 1 implemented.** Attribution via `HitData.m_skill`; store per world UID; `proven` console command. |
 | 2026-08-06 | Highest applicable weight wins per kill rather than summing — stacking boss-fight on 2★ would break pacing. |
 | 2026-08-08 | **Phase 1 verified in-game.** `raiseskill` confirmed unable to move Proven. |
-| 2026-08-08 | Tier gate confirmed working *as specified* — and the specification found wanting for shared servers. Fix pending. |
+| 2026-08-08 | Tier gate confirmed working *as specified* — and the specification found wanting for shared servers. |
+| 2026-08-08 | **Progression tier is per-player**, from the highest-tier creature that player has killed. World boss keys no longer consulted. |

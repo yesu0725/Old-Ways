@@ -44,8 +44,9 @@ namespace OldWays
             if (!authoritative && !ProvenRpc.LocalRecordReceived)
                 sb.AppendLine("(no sync from the server yet — earn Proven once to populate this)");
 
-            int tier = ProgressionTier.PlayerTier();
-            sb.AppendLine($"Progression tier: {tier} — creatures below tier {tier - 1} earn you nothing.");
+            int tier = record.Tier;
+            sb.AppendLine($"Progression tier: {tier} (your own — the highest-tier creature you have killed). " +
+                          $"Creatures below tier {tier - 1} earn you nothing.");
             sb.AppendLine("Only 1-star, 2-star and boss-fight kills are trials; unstarred kills earn nothing.");
             sb.AppendLine();
 

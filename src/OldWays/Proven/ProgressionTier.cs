@@ -19,39 +19,11 @@ namespace OldWays
         internal const int Mistlands = 6;
         internal const int Ashlands = 7;
 
-        /// <summary>
-        /// Boss-defeat keys in progression order. Read as strings rather than the GlobalKeys enum:
-        /// the enum only covers the first five defeats, while queen/fader exist as string keys.
-        /// </summary>
-        private static readonly string[] DefeatKeysInOrder =
-        {
-            "defeated_eikthyr",     // -> tier 1 cleared
-            "defeated_gdking",      // Elder
-            "defeated_bonemass",
-            "defeated_dragon",      // Moder
-            "defeated_goblinking",  // Yagluth
-            "defeated_queen",
-            "defeated_fader",
-        };
-
-        /// <summary>
-        /// The player's progression tier: 1 until they kill Eikthyr, then one per boss defeated.
-        /// Global keys are world-wide in vanilla, so on a shared server this is effectively the
-        /// server's progression, not the individual's. Accepted for now — see docs/03.
-        /// </summary>
-        internal static int PlayerTier()
-        {
-            var zone = ZoneSystem.instance;
-            if (zone == null) return Meadows;
-
-            int tier = Meadows;
-            foreach (string key in DefeatKeysInOrder)
-            {
-                if (!zone.GetGlobalKey(key)) break;
-                tier++;
-            }
-            return tier > Ashlands ? Ashlands : tier;
-        }
+        // NOTE: progression tier is deliberately NOT read from vanilla boss-defeat global keys.
+        // Those are world state, so on an established server a newcomer would inherit the server's
+        // tier on arrival and could never earn Proven from anything below it — see the decision in
+        // docs/03 (2026-08-08). A player's tier now lives on their own ProvenRecord and advances
+        // with the highest-tier creature they have personally killed.
 
         private static readonly Dictionary<string, int> CreatureTiers = new()
         {

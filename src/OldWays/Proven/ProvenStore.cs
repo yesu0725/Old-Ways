@@ -79,8 +79,12 @@ namespace OldWays
             }
 
             // --- tier gate -------------------------------------------------------------
-            int playerTier = ProgressionTier.PlayerTier();
+            // Tier is this player's own, not the world's: a newcomer on an established server must
+            // still be able to earn (docs/03).
+            ProvenRecord record = Get(playerId);
+            int playerTier = record.Tier;
             int creatureTier = ProgressionTier.CreatureTier(victimPrefab, playerTier);
+
             float tierMult = ProgressionTier.Multiplier(creatureTier, playerTier);
             if (tierMult <= 0f)
             {
@@ -88,6 +92,14 @@ namespace OldWays
                       $"({playerTier - creatureTier} tiers above it). Creatures two or more tiers below " +
                       "you earn nothing — this is the anti-farm rule, not a bug.");
                 return 0;
+            }
+
+            // Facing something new raises this player's tier. Done after the gate so the kill that
+            // promotes you is still paid at the rate you earned it.
+            if (record.RaiseTier(creatureTier))
+            {
+                _dirty = true;
+                Trace($"player {playerId} progression tier is now {record.Tier} (killed '{victimPrefab}').");
             }
 
             // --- diminishing returns ---------------------------------------------------
@@ -102,7 +114,6 @@ namespace OldWays
                 return 0;
             }
 
-            ProvenRecord record = Get(playerId);
             int before = record.GetPoints(skill);
             int rankBefore = record.GetRank(skill);
             int after = record.AddPoints(skill, award);
