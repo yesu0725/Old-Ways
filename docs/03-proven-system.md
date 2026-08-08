@@ -145,11 +145,26 @@ Proven. Killing ordinary creatures earns zero. This is on-theme — you are prov
 volume — but it means rank 1 is roughly 15 two-star kills, and a player who never fights starred
 creatures will never unlock a power.
 
-### Player tier is world-wide, not per-player
+### Player tier source — `BLOCKING`, confirmed in testing 2026-08-08
 
 `ProgressionTier.PlayerTier()` reads vanilla boss-defeat global keys, which are **world state**, not
-per-character. On a shared server a new player inherits the server's progression tier, so low-tier
-creatures stop awarding them Proven immediately. Accepted for now; revisit if it hurts newcomers.
+per-character. This was flagged as `PROPOSED` and never signed off, and testing has now shown why it
+matters: a starred kill awarded nothing until the tester **reset the world's boss keys**. The gate
+behaved exactly as specified — the specification is the problem.
+
+Consequence on TaegukGaming specifically: a player joining an established server inherits the
+server's progression tier immediately. If the server has Yagluth down, every creature below Plains
+earns that newcomer **zero**, forever. They can never reach Rank 1, so they can never unlock a single
+power — on a mod whose entire premise is earning mastery through trial. Combined with "only starred
+kills count," the earn surface for a new player on a late-game server is close to nothing.
+
+This needs a decision before Phase 2 builds powers on top of it.
+
+**PROPOSED fix:** track progression tier **per player in our own store**, advanced by the
+highest-tier creature that player has actually killed. We already hold a server-side per-player
+record, so this costs nothing structurally, it is immune to console commands for the same reason
+Proven is, and it makes the anti-farm rule mean what it was meant to mean — *you* have outgrown this
+creature, rather than *someone on this server* has.
 
 ## Decision log
 
@@ -163,3 +178,5 @@ creatures stop awarding them Proven immediately. Accepted for now; revisit if it
 | 2026-08-06 | Weights, tier multiplier, and DR curve set as first-pass proposed values. |
 | 2026-08-06 | **Phase 1 implemented.** Attribution via `HitData.m_skill`; store per world UID; `proven` console command. |
 | 2026-08-06 | Highest applicable weight wins per kill rather than summing — stacking boss-fight on 2★ would break pacing. |
+| 2026-08-08 | **Phase 1 verified in-game.** `raiseskill` confirmed unable to move Proven. |
+| 2026-08-08 | Tier gate confirmed working *as specified* — and the specification found wanting for shared servers. Fix pending. |

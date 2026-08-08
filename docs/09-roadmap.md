@@ -27,7 +27,7 @@ go. `DECIDED 2026-08-06`. Each phase is independently testable in-game before th
 Outstanding admin, not blocking Phase 1: the GitHub repo itself still needs creating and a first
 push. **No LICENSE by decision** ([07](07-technical-architecture.md)) — not a todo.
 
-## Phase 1 — Proven core + trial log  `CODE COMPLETE, UNTESTED IN-GAME`
+## Phase 1 — Proven core + trial log  `VERIFIED IN-GAME 2026-08-08`
 
 The foundation everything else depends on. Nothing gates on nothing.
 
@@ -40,11 +40,16 @@ The foundation everything else depends on. Nothing gates on nothing.
 - [x] Rank ladder + Old Ways Presence — `Proven/ProvenRecord.cs`.
 - [x] Skills-screen trial log — `UI/TrialLog.cs`, plus a `proven` console command
       (`UI/ProvenCommand.cs`) for verification.
-- [ ] **In-game verification** — nothing here has been run yet.
+- [x] **In-game verification, 2026-08-08.** Trial log renders on the skills screen; `raiseskill`
+      moves the vanilla skill and leaves Proven untouched; a starred kill awards points.
 
 Discovered during implementation and written up in [03](03-proven-system.md): kill reports are
-necessarily client-originated (ZDO ownership), unstarred kills award nothing, and player tier is
-world-wide rather than per-character.
+necessarily client-originated (ZDO ownership) and unstarred kills award nothing.
+
+**Verification also surfaced a live problem:** the first starred kill awarded nothing until the
+tester reset the world's boss keys. The tier gate was doing exactly what it was specified to do —
+which is how we learned the specification is wrong for a shared server. See "Player tier source" in
+[03](03-proven-system.md).
 
 **Acceptance test** (run these in the test profile):
 
@@ -112,6 +117,7 @@ Includes the retarget-cost profiling pass.
 
 - Retune PP weights and the reaction curve against real play — the numbers in
   [03](03-proven-system.md) and [04](04-boss-reactions.md) are explicitly a first pass.
+- **Turn `Verbose Logging` off.** It defaults on during development and logs every hit.
 - **Three-mod compatibility test** with BiomeLords and Lost Scrolls II.
 - Verify the vanilla promise: a group with no Proven players gets an unmodified game.
 - Thunderstore packaging, README, changelog.
