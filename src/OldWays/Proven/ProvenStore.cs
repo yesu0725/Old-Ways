@@ -148,6 +148,59 @@ namespace OldWays
             return total;
         }
 
+        /// <summary>
+        /// Sets an exact value for one skill. Admin only. Returns the previous value so the caller
+        /// can report what was overwritten — these commands are destructive and the admin should
+        /// see what they replaced.
+        /// </summary>
+        internal static int SetPoints(long playerId, Skills.SkillType skill, int points)
+        {
+            if (!ProvenSkills.IsTracked(skill)) return 0;
+            ProvenRecord record = Get(playerId);
+            int before = record.GetPoints(skill);
+            record.SetPoints(skill, points);
+            _dirty = true;
+            Save();
+            return before;
+        }
+
+        /// <summary>
+        /// Clears one skill, or everything (including progression tier) when skill is null.
+        /// Returns a short description of what was cleared, for the admin's confirmation.
+        /// </summary>
+        internal static string ResetPlayer(long playerId, Skills.SkillType? skill)
+        {
+            ProvenRecord record = Get(playerId);
+
+            if (skill.HasValue)
+            {
+                int before = record.GetPoints(skill.Value);
+                record.SetPoints(skill.Value, 0);
+                _dirty = true;
+                Save();
+                return $"{skill.Value} cleared (was {before} PP)";
+            }
+
+            int tierBefore = record.Tier;
+            var cleared = new List<string>();
+            foreach (Skills.SkillType s in ProvenSkills.Tracked)
+            {
+                int pts = record.GetPoints(s);
+                if (pts > 0) cleared.Add($"{s} {pts}");
+            }
+
+            record.ResetAll();
+            _dirty = true;
+            Save();
+
+            return cleared.Count == 0
+                ? $"nothing to clear (tier was {tierBefore}, now 1)"
+                : $"cleared {string.Join(", ", cleared.ToArray())}; tier {tierBefore} -> 1";
+        }
+
+        /// <summary>Every player the store knows about, for the admin listing.</summary>
+        internal static IEnumerable<KeyValuePair<long, ProvenRecord>> AllRecords() => Records;
+
         private static float ConsumeDiminishingReturns(long playerId, string prefab)
         {
             if (string.IsNullOrEmpty(prefab)) prefab = "unknown";
@@ -218,6 +271,9 @@ namespace OldWays
                     if (!long.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out long playerId)) continue;
 
                     Records[playerId] = ProvenRecord.Deserialize(parts[2]);
+                    // Names come back too, so an admin can target a player who has not logged in
+                    // since the server started.
+                    if (parts[1] != "?") PlayerRegistry.RememberName(playerId, parts[1]);
                     loaded++;
                 }
                 Plugin.Log.LogInfo($"[Proven] loaded {loaded} record(s) from {path}");
@@ -263,14 +319,11 @@ namespace OldWays
             }
         }
 
-        // Display names are cosmetic (they make the store file readable); absence is harmless.
-        private static readonly Dictionary<long, string> Names = new();
-
         internal static void RememberName(long playerId, string name)
         {
-            if (!string.IsNullOrEmpty(name)) Names[playerId] = name.Replace("|", "");
+            if (!string.IsNullOrEmpty(name)) PlayerRegistry.RememberName(playerId, name.Replace("|", ""));
         }
 
-        private static string NameFor(long playerId) => Names.TryGetValue(playerId, out string n) ? n : "?";
+        private static string NameFor(long playerId) => PlayerRegistry.NameFor(playerId);
     }
 }

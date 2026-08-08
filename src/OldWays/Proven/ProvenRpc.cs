@@ -26,6 +26,7 @@ namespace OldWays
     {
         private const string RpcReportKill = "OldWays_ReportKill";
         private const string RpcSyncProven = "OldWays_SyncProven";
+        private const string RpcAnnounce = "OldWays_Announce";
 
         /// <summary>The local player's Proven, pushed by the server. Display only — never authoritative.</summary>
         internal static ProvenRecord LocalRecord { get; private set; } = new();
@@ -46,6 +47,7 @@ namespace OldWays
 
                 ZRoutedRpc.instance.Register<ZPackage>(RpcReportKill, RPC_ReportKill);
                 ZRoutedRpc.instance.Register<ZPackage>(RpcSyncProven, RPC_SyncProven);
+                ZRoutedRpc.instance.Register<ZPackage>(RpcAnnounce, RPC_Announce);
 
                 if (__instance.IsServer())
                 {
@@ -73,6 +75,52 @@ namespace OldWays
                 if (__instance.IsServer()) ProvenStore.Save(force: true);
                 LocalRecord = new ProvenRecord();
                 LocalRecordReceived = false;
+            }
+        }
+
+        // ---- identity handshake ---------------------------------------------------------
+
+        /// <summary>
+        /// Clients announce themselves on spawn so the server can map peer -> player id -> name.
+        /// Without this an admin has no way to name a target: peers carry a name and a peer uid,
+        /// but Proven is keyed by player id, which only the client knows.
+        /// </summary>
+        [HarmonyPatch(typeof(Player), nameof(Player.OnSpawned))]
+        private static class AnnounceOnSpawn
+        {
+            private static void Postfix(Player __instance)
+            {
+                if (__instance != Player.m_localPlayer) return;
+                if (ZRoutedRpc.instance == null) return;
+
+                var pkg = new ZPackage();
+                pkg.Write(__instance.GetPlayerID());
+                pkg.Write(__instance.GetPlayerName() ?? "");
+                ZRoutedRpc.instance.InvokeRoutedRPC(RpcAnnounce, pkg);
+
+                // Ask for our own record so the trial log is populated before earning anything.
+                LocalRecordReceived = false;
+            }
+        }
+
+        private static void RPC_Announce(long sender, ZPackage pkg)
+        {
+            if (ZNet.instance == null || !ZNet.instance.IsServer()) return;
+
+            try
+            {
+                long playerId = pkg.ReadLong();
+                string name = pkg.ReadString();
+                PlayerRegistry.Register(sender, playerId, name);
+                Plugin.Log.LogInfo($"[Proven] peer {sender} is player {playerId} '{name}'.");
+
+                // Push their current standing so the skills screen is right from the moment they
+                // spawn, rather than blank until their first kill.
+                SyncTo(sender, playerId);
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"[Proven] bad announce from peer {sender}: {e.Message}");
             }
         }
 

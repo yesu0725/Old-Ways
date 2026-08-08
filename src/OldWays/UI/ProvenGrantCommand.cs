@@ -104,11 +104,9 @@ namespace OldWays
             var skill = (Skills.SkillType)pkg.ReadInt();
             int points = pkg.ReadInt();
 
-            if (!IsSenderAdmin(sender))
+            if (!AdminAuth.IsSenderAdmin(sender))
             {
-                Plugin.Log.LogWarning($"[Proven] REFUSED proven_grant from non-admin peer {sender} " +
-                                      $"(claimed player {playerId} '{playerName}', {points} points in {skill}). " +
-                                      "The client-side admin flag was bypassed or the peer is not an admin.");
+                AdminAuth.Refuse(sender, $"proven_grant ({points} points in {skill} for player {playerId})");
                 return;
             }
 
@@ -121,29 +119,6 @@ namespace OldWays
                                   $"'{playerName}' {points} points in {skill} (now {total}).");
 
             ProvenRpc.SyncTo(sender, playerId);
-        }
-
-        /// <summary>
-        /// The security boundary. On a listen server the host is implicitly admin; on a dedicated
-        /// server the peer's host name must be on the admin list.
-        /// </summary>
-        private static bool IsSenderAdmin(long sender)
-        {
-            ZNet net = ZNet.instance;
-            if (net == null) return false;
-
-            // Host playing on their own machine: the routed RPC comes from themselves.
-            if (sender == 0L || (Player.m_localPlayer != null && net.LocalPlayerIsAdminOrHost() &&
-                                 sender == ZDOMan.GetSessionID()))
-            {
-                return true;
-            }
-
-            ZNetPeer peer = net.GetPeer(sender);
-            if (peer?.m_socket == null) return false;
-
-            string hostName = peer.m_socket.GetHostName();
-            return !string.IsNullOrEmpty(hostName) && net.IsAdmin(hostName);
         }
     }
 }

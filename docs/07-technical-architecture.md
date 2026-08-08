@@ -138,11 +138,18 @@ A Mono.Cecil-based inspector was used to confirm all of the above against
 - Creature gating re-evaluates on **target change**; with large packs this needs a profiling pass
   before Phase 8 ships.
 
-## Admin test command — a deliberate hole, fenced
+## Admin commands — deliberate holes, fenced
 
-`proven_grant <skill> <points>` exists so a power can be verified without the ~15 starred kills that
-rank 1 legitimately costs. It is the only path that writes Proven without earning it, so it is
-fenced on every side:
+| Command | Does |
+|---|---|
+| `proven_grant <skill> <points>` | adds points to **yourself** — the quick path for testing a power |
+| `proven_players` | lists every player the server has a record or a name for |
+| `proven_set <player> <skill> <points>` | sets an exact value, up or **down** |
+| `proven_reset <player> [skill]` | clears one skill, or every track **and the progression tier** |
+
+`<player>` accepts a name, an unambiguous partial name, a raw player id, or `me`.
+
+These are the only paths that write Proven without earning it, so they are fenced on every side:
 
 | Fence | Why |
 |---|---|
@@ -152,8 +159,22 @@ fenced on every side:
 | Applied server-side through the same store as a real award | client and server cannot desync |
 | Every use logged at **warning** level with the granting peer and player id | grants are auditable after the fact |
 | Grants **points, not ranks** | the rank ladder and thresholds stay the single source of truth |
+| The server replies with what it actually did | the admin sees the real outcome, including the previous value they overwrote, rather than what their client assumed |
+| The affected player is re-synced immediately | their trial log never shows a number the server no longer agrees with |
 
-Refusals are logged too, so an attempt to bypass the client-side flag leaves a trace.
+Refusals are logged too, so an attempt to bypass the client-side flag leaves a trace. The admin
+check lives in exactly one place — `Proven/AdminAuth.cs` — so it cannot drift between commands as
+more are added.
+
+### Player identity
+
+Proven is keyed by `Player.GetPlayerID()`, but peers carry only a name and a peer uid, so the server
+cannot name a target on its own. Clients announce `playerId + name` on `Player.OnSpawned`, and
+`Proven/PlayerRegistry.cs` holds the map. Names are also restored from the store file on load, so an
+admin can act on a player who has not logged in since the server started.
+
+The announce also triggers an immediate sync, so a returning player's trial log is correct the moment
+they spawn instead of blank until their first kill.
 
 ## Known risks
 
@@ -194,3 +215,5 @@ Don't re-raise this without a reason; it's a settled preference, not an oversigh
 | 2026-08-06 | ServerSync **vendored** (MIT-0), reviewed, and wired through the `Bind()` seam. Version-matching on. |
 | 2026-08-06 | Assembly publicizer added — a hard requirement of ServerSync, and our own patches will want it. |
 | 2026-08-06 | Every build auto-deploys to the r2modman "Mod Test Profile" (dll + pdb). |
+| 2026-08-08 | Admin commands `proven_players` / `proven_set` / `proven_reset` added; admin check centralised in `AdminAuth`. |
+| 2026-08-08 | Clients announce identity on spawn (`PlayerRegistry`) so admins can target players by name. |

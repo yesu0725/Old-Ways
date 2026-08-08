@@ -44,6 +44,23 @@ namespace OldWays
             return total;
         }
 
+        /// <summary>
+        /// Sets an exact value, which may be lower than the current one. Only admin commands reach
+        /// this — earned Proven never decreases (docs/03).
+        /// </summary>
+        internal void SetPoints(Skills.SkillType skill, int points)
+        {
+            if (points <= 0) _points.Remove(skill);
+            else _points[skill] = points;
+        }
+
+        /// <summary>Wipes every track and returns the player to tier 1, as if they had never been tested.</summary>
+        internal void ResetAll()
+        {
+            _points.Clear();
+            Tier = ProgressionTier.Meadows;
+        }
+
         internal int GetRank(Skills.SkillType skill) => RankForPoints(GetPoints(skill));
 
         /// <summary>Highest rank across all tracked skills — a player's "Old Ways Presence" (docs/04).</summary>
