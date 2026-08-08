@@ -89,7 +89,9 @@ namespace OldWays
 
         internal static void Bind(ConfigFile cfg)
         {
-            LockConfig = cfg.Bind(SecGeneral, "Lock Configuration", true,
+            // Bound directly rather than through Bind() because ServerSync registers it as the
+            // locking entry, which also registers it as a synced entry. Still sanitised.
+            LockConfig = cfg.Bind(Sanitize(SecGeneral, "section"), Sanitize("Lock Configuration", "key"), true,
                 "If on, only server admins can change these settings; everyone else receives the " +
                 "server's values. Server-authoritative Proven is pointless if clients can retune " +
                 "the weights that feed it.");
@@ -142,9 +144,11 @@ namespace OldWays
                 "Proven rank among players in the encounter. Presence 0 means fully vanilla.");
             ReactionChancePerRank = Bind(cfg, SecReactions, "Reaction Chance Per Rank", 0.12f, "");
 
-            SwordDuelistsGuardEnabled = Bind(cfg, SecPowers, "Swords - Duelist's Guard", true,
+            // Power names are flavour text; config keys are not. Apostrophes are illegal here
+            // (see the sanitiser in Bind), so "Duelist's Guard" is keyed as "Duelists Guard".
+            SwordDuelistsGuardEnabled = Bind(cfg, SecPowers, "Swords - Duelists Guard", true,
                 "Swords, Proven rank 1: blocking and parrying with a sword works at shield strength.");
-            SwordDuelistsGuardBlockMult = Bind(cfg, SecPowers, "Swords - Duelist's Guard Multiplier", 2.5f,
+            SwordDuelistsGuardBlockMult = Bind(cfg, SecPowers, "Swords - Duelists Guard Multiplier", 2.5f,
                 "Multiplier applied to a sword's block power and deflection force. 2.5 puts a good " +
                 "sword roughly in shield territory; raise it if shieldless play still feels unviable.");
         }
@@ -155,9 +159,34 @@ namespace OldWays
         /// </summary>
         private static ConfigEntry<T> Bind<T>(ConfigFile cfg, string section, string key, T defaultValue, string description)
         {
-            ConfigEntry<T> entry = cfg.Bind(section, key, defaultValue, description);
+            ConfigEntry<T> entry = cfg.Bind(Sanitize(section, "section"), Sanitize(key, "key"), defaultValue, description);
             SyncManager.AddConfigEntry(entry);
             return entry;
+        }
+
+        /// <summary>
+        /// BepInEx rejects = \n \t \ " ' [ ] in section and key names, and throws during Bind —
+        /// which takes the whole plugin down at startup before anything else loads.
+        ///
+        /// Powers carry flavour names ("Duelist's Guard"), so an apostrophe reaching a config key
+        /// is a live hazard every time one is added. Strip the illegal characters and warn rather
+        /// than failing to load. Renaming the key is still the right fix; this only ensures a typo
+        /// costs a log line instead of the mod.
+        /// </summary>
+        private static readonly char[] IllegalConfigChars = { '=', '\n', '\t', '\\', '"', '\'', '[', ']' };
+
+        private static string Sanitize(string value, string what)
+        {
+            if (string.IsNullOrEmpty(value) || value.IndexOfAny(IllegalConfigChars) < 0) return value;
+
+            string cleaned = value;
+            foreach (char c in IllegalConfigChars) cleaned = cleaned.Replace(c.ToString(), "");
+            cleaned = cleaned.Trim();
+            if (cleaned.Length == 0) cleaned = "unnamed";
+
+            Plugin.Log.LogWarning($"Config {what} \"{value}\" contains characters BepInEx forbids " +
+                                  $"(= \\n \\t \\ \" ' [ ]); using \"{cleaned}\". Rename it in OldWaysConfig.");
+            return cleaned;
         }
 
         /// <summary>

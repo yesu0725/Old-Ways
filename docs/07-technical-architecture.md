@@ -82,6 +82,13 @@ that makes "server-required" real rather than aspirational.
 produces CS0433 ambiguity errors. `Unity.TextMeshPro` must be referenced (ServerSync's connect-error
 panel touches `TMP_Text`).
 
+**Config key gotcha:** BepInEx forbids `= \n \t \ " ' [ ]` in section and key names and **throws
+during `Bind`**, which takes the whole plugin down at startup before anything else loads. Powers
+carry flavour names ("Duelist's Guard"), so an apostrophe reaching a key is a live hazard every time
+one is added — it happened on the very first power, 2026-08-08. `OldWaysConfig.Sanitize` now strips
+them and warns, so a slip costs a log line instead of the mod. Naming the key correctly is still the
+right fix; the sanitiser is a backstop, not a licence.
+
 Toggle levels:
 
 1. **Per category** — skill tweaks / weapon powers / boss reactions / creature reactions, each off-able
