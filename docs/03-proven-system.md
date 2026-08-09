@@ -20,19 +20,14 @@ qualifying combat events. Vanilla skill commands cannot touch it.
 - **Proven is per vanilla skill**, not per weapon family. `DECIDED 2026-08-06` — see the consequence
   for shields below.
 
-## Granularity: 11 tracks, 13 powers
+## Granularity: 12 tracks
 
-Per-skill tracking maps cleanly for every family except shields — Blocking is one vanilla skill
-carrying three powers. Rather than splitting it, the three shield powers **unlock in stages up the
-Blocking rank ladder**:
+Per-skill tracking maps cleanly onto the game's own `Skills.SkillType`, whose combat values are
+exactly these eleven. **Unarmed is a twelfth track** added 2026-08-09 so fist weapons are not left
+out.
 
-| Vanilla skill | Power(s) | Unlock rank |
-|---|---|---|
-| Swords, Knives, Clubs, Axes, Polearms, Spears, Bows, Crossbows, ElementalMagic, BloodMagic | one each | Rank 1 |
-| **Blocking** | Parry negation → Shield bash → Brace buffer | **Rank 1 → 2 → 3** |
-
-This is a direct consequence of the per-skill decision, and it's a good one: shields get a visible
-progression instead of three simultaneous unlocks.
+Blocking is the one family with no attack, so it cannot use the standard R1/R3/R5 ladder and carries
+its own three powers up the same rungs — see [02](02-weapon-mastery.md).
 
 ## Rank ladder
 
@@ -47,9 +42,20 @@ Proven Points (PP) accumulate per skill and never reset. Ranks:
 | 4 | Veteran | 1400 | — |
 | 5 | **Old Ways** | **2200** | Ceiling |
 
-**Ranks 2–5 do not add new powers** (except Blocking). They exist to drive the enemy reaction curve —
-see [04](04-boss-reactions.md) and [05](05-creature-reactions.md). This is what makes the "steady curve
-scaling with player mastery" decision work: one number does both jobs.
+**Every rank gives the player something.** `REVISED 2026-08-09` — the earlier model had ranks 2–5
+existing only to drive the enemy reaction curve, which meant a player grinding to Rank 5 got nothing
+personally while the world got harder. The ladder in [02](02-weapon-mastery.md) now fills it:
+
+| Rank | Player gets | Also |
+|---|---|---|
+| R1 | the signature power | reaction curve |
+| R2 | — | reaction curve |
+| R3 | a perk on the weapon's secondary attack | reaction curve |
+| R4 | — | reaction curve |
+| R5 | the primary chain connects into the secondary | reaction curve |
+
+The single Proven number still drives both jobs, which is what makes the "steady curve scaling with
+player mastery" decision work.
 
 **Soft prerequisite:** vanilla skill ≥ 30 in that skill is also required for Rank 1. A console-raised
 skill alone still unlocks nothing; the PP is the real gate.
@@ -196,3 +202,5 @@ rather than *someone on this server* has.
 | 2026-08-08 | **Phase 1 verified in-game.** `raiseskill` confirmed unable to move Proven. |
 | 2026-08-08 | Tier gate confirmed working *as specified* — and the specification found wanting for shared servers. |
 | 2026-08-08 | **Progression tier is per-player**, from the highest-tier creature that player has killed. World boss keys no longer consulted. |
+| 2026-08-09 | **Ranks 2–5 are no longer curve-only** — R3 and R5 now grant player-facing perks ([02](02-weapon-mastery.md)). |
+| 2026-08-09 | **Unarmed added as a 12th track** so fist weapons are covered. |

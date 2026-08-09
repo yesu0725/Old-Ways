@@ -101,19 +101,41 @@ Equip a sword and **no shield** throughout.
 6. Try a troll or something heavier to see where the ceiling sits, and tune
    `Swords - Duelist's Guard Multiplier` if 2.5 is too weak or too strong.
 
-## Phase 3 — Remaining melee
+## Phase 3 — Remaining melee  `NEXT`
 
-Knives, Clubs, Axes, Polearms, Spears. Same pattern as Phase 2, now in parallel.
+Knives, Clubs, Axes, Polearms, Spears — plus **Unarmed**, added to the roster 2026-08-09.
+
+Build **R1 signatures first, across all six**, then R3, then R5. Ranks are independent of each
+other, and doing a whole rung at once means the shared machinery (chain interception, secondary-attack
+patching) is written once rather than six times.
+
+| Family | R1 | R3 | R5 |
+|---|---|---|---|
+| Knives | Vanish | Falling Fang | chain → leap |
+| Clubs | Guard Crusher | Uplift | chain → rising swing |
+| Axes | Hook | Cleave / Splitting Blow | chain → secondary |
+| Polearms | Set Against the Charge | Whirlwind | chain → whirlwind |
+| Spears | Impale | Recall | instant throw |
+| Unarmed | Flow | Snap Kick | punch → punch → kick |
+
+Full detail in [02](02-weapon-mastery.md).
 
 ## Phase 4 — Ranged + shields
 
-Bows, Crossbows, then Blocking's three staged unlocks (R1 parry → R2 bash → R3 brace). Shields last in
-this phase — the brace buffer is the most novel mechanic in the mod and the only one with a charge-up.
+Bows (Piercing Shot), Crossbows (Steady Aim), then Blocking's own ladder — Deflection → Immovable →
+Unbreakable. **Shield bash does not exist in Valheim** and was cut; see [02](02-weapon-mastery.md).
+
+Deflection (returning a projectile to its sender) is the most novel mechanic left in the mod, so it
+goes last in this phase.
 
 ## Phase 5 — Magic
 
-Elemental (no-Eitr chance) and Blood (capped lifesteal). Needs the "spell landed its full effect on a
-real threat" PP event, which is the fuzziest earning condition in [03](03-proven-system.md).
+Elemental detonation combos and the per-staff Blood Magic ladder. Needs the "spell landed its full
+effect on a real threat" PP event, which is the fuzziest earning condition in
+[03](03-proven-system.md).
+
+Also resolve whether `StaffGreenRoots` counts as ElementalMagic or BloodMagic — it lives in prefab
+data and decides which track it ladders under.
 
 ## Phase 6 — Skill mastery tweaks
 

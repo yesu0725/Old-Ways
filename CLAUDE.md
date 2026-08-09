@@ -46,17 +46,26 @@ mastery. Nothing is bolted on: every effect finishes something vanilla started.
 
 ## Core mechanics at a glance
 
-- **Proven** is tracked **per vanilla skill** (11 tracks), server-authoritative, permanent, on a 5-rank
-  ladder. **Rank 1 = 150 PP + vanilla skill 30** unlocks that skill's power. Ranks 2–5 exist to drive
-  the enemy reaction curve. Full detail: [03](docs/03-proven-system.md).
+- **Proven** is tracked **per vanilla skill** (12 tracks incl. Unarmed), server-authoritative,
+  permanent, on a 5-rank ladder. **Rank 1 = 150 PP + vanilla skill 30.** Every rank gives something:
+  **R1** signature power, **R3** secondary-attack perk, **R5** primary chain flows into the secondary.
+  Full detail: [03](docs/03-proven-system.md), [02](docs/02-weapon-mastery.md).
 - **Old Ways Presence** = a player's highest Proven rank across all skills (0–5). One number, drives all
   enemy reactions.
 - **Enemy reactions** split gate from intensity: *any one* Rank 1+ player present switches a reaction
   on; the **whole encounter then scales off the highest Presence present**. A veteran raises the fight
   for everyone in it — deliberate, see [04](docs/04-boss-reactions.md).
 - **Server-authoritative and server-required.** Clients never write Proven.
-- **Current status: [Phase 0](docs/09-roadmap.md) complete** — plugin builds, loads in the test
-  profile, config is ServerSync'd. No gameplay systems yet. **Phase 1 (Proven core) is next.**
+- **Current status: Phases 0–1 complete and verified in-game**; Phase 2 (Swords — Duelist's Guard)
+  code complete. **[Phase 3](docs/09-roadmap.md) — remaining melee — is next.**
+
+## Before designing any power
+
+The handoff's power table was written without checking vanilla. Auditing it cost two implemented
+no-ops (Riposte) and one power that could never exist (shield bash). **Check what vanilla already
+does at a trigger before designing for it**, and read attack data from
+`oldways_dumpweapons` rather than memory — attack definitions live in prefab data, not in the
+assembly. Cuts and their reasoning: [02](docs/02-weapon-mastery.md).
 
 ## Build
 

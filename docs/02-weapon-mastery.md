@@ -1,114 +1,182 @@
 # Weapon / Shield / Magic Mastery Powers
 
-Status: `DECIDED` in concept (handoff §4), all values `TBD`
-
-One new capability per weapon family. **v1 includes all families listed below** — confirmed, not a
-staggered rollout.
+Status: `DECIDED` — full five-rank ladder, revised 2026-08-09 against verified attack data.
+Swords `IMPLEMENTED`; everything else pending Phases 3–5.
 
 ## Design rule
 
-**Trigger off an input the weapon already uses** — secondary attack, parry timing, charged attack,
-block-and-hold, sneak backstab, reload. No new hotkey. No cooldown-gauge UI. This keeps the mod clear
-of BiomeLords' Forsaken Power slot.
+**Trigger off an input the weapon already uses.** No new hotkey, no cooldown-gauge UI. This keeps
+the mod clear of BiomeLords' Forsaken Power slot.
+
+A second rule, learned the hard way (see *Cuts* below): **check what vanilla already does at that
+trigger before designing anything.** A power that reads well in a table can be invisible in play.
+
+## The ladder
+
+Every weapon family follows the same shape. This replaces the earlier model where ranks 2–5 existed
+only to drive the enemy reaction curve — a player grinding to Rank 5 now gets something at each step
+that matters to them, not only to the enemies.
+
+| Rank | What it gives |
+|---|---|
+| **R1** | the family's signature power |
+| **R2** | reaction-curve step only |
+| **R3** | a perk on the weapon's **secondary attack** |
+| **R4** | reaction-curve step only |
+| **R5** | the full primary chain **connects into the secondary attack**, and that finisher carries its R3 perk |
+
+Blocking has no attack and keeps its own ladder. Five families cannot support the R5 chain at all —
+see *Where R5 cannot apply*.
 
 ## The powers
 
-| Weapon / School | Trigger (existing input) | New capability | Gate |
+| Family | R1 signature | R3 secondary perk | R5 |
 |---|---|---|---|
-| Swords | Block / parry with the sword itself | **Duelist's Guard** — sword blocks and parries at shield strength | Swords R1 · `IMPLEMENTED` |
-| Knives | Sneak-attack kill | **Full stamina refund** + brief near-silent footsteps | Knives R1 |
-| Clubs | Charged heavy swing | Small **stagger-radius pulse** on impact (extends existing knockback) | Clubs R1 |
-| Axes | Heavy swing vs. already-staggered, low-HP target | **Executes** the target outright | Axes R1 |
-| Polearms / Atgeir | Spin secondary attack | **No stamina drain** mid-spin + poise resistance during the spin | Polearms R1 |
-| Spears | Charged throw | **Pierces through** the first target into whatever's behind it | Spears R1 |
-| Bows | Holding past full draw (currently plateaus) | **"True shot"** — ignores target's stagger resistance | Bows R1 |
-| Crossbows | Reload | Near-full **move speed retained** while reloading | Crossbows R1 |
-| Shields (parry) | Perfect-timed parry | Fully negates own stagger + briefly **punishes attacker's poise** | **Blocking R1** |
-| Shields (bash) | Shield bash (secondary attack) | Reduced stamina cost; **staggers enemy types normally immune** to bash | **Blocking R2** |
-| Shields (brace) | Hold block without moving | Builds a **buffer over time** that absorbs one otherwise guard-breaking hit | **Blocking R3** |
-| Elemental Magic | Fully-charged cast | Chance to **consume no Eitr** | ElementalMagic R1 |
-| Blood Magic | Cast above an HP-cost threshold | Brief **lifesteal** on the next hit landed within a few seconds | BloodMagic R1 |
+| **Swords** | **Duelist's Guard** — sword blocks/parries at shield strength | **Thread the Gap** — the thrust cannot be blocked or deflected | chain → thrust |
+| **Knives** | **Vanish** — a sneak-attack kill clears nearby alert state, letting you re-enter stealth | **Falling Fang** — the leaping stab, begun unseen, lands as a full backstab regardless of facing, at normal stamina | chain → leap |
+| **Clubs** | **Guard Crusher** — hits break through a blocking enemy's guard | **Uplift** — the rising swing throws the target off its feet; it lands staggered | chain → uppercut |
+| **Axes** | **Hook** — the charged attack *pulls* the target toward you | **Cleave** (2H thrust, passes into a target behind) / **Splitting Blow** (1H chop, staggers target and adjacent) | chain → secondary |
+| **Polearms** | **Set Against the Charge** — a braced block impales a charging creature | **Whirlwind** — the spin becomes a double rotation that advances forward, uninterruptible | chain → whirlwind |
+| **Spears** | **Impale** — a charged throw pins a non-boss target briefly | **Recall** — press block to return a thrown spear to your hand | **instant throw** — see below |
+| **Bows** | **Piercing Shot** — holding past full draw pierces targets; count scales with rank (1→5) | **Snap Kick** | no damage falloff between pierced targets |
+| **Crossbows** | **Steady Aim** — a braced, stationary shot ignores armour and cannot be deflected | **Snap Kick** | reload at full movement speed |
+| **Unarmed** | **Flow** — consecutive landed punches shorten the next punch's recovery; resets on a miss or a hit taken | **Snap Kick** | **punch → punch → kick** |
+| **Elemental** | **Elemental Detonation** — see the combo table | **Snap Kick** | detonations chain to further afflicted targets |
+| **Blood** | per-staff ladder — see below | **Snap Kick** | per-staff ladder |
+| **Blocking** | **Deflection** — a perfect parry returns a projectile or spell to its sender | R3 **Immovable** — cannot be knocked back or displaced while braced | R5 **Unbreakable** — a single hit can no longer break your guard |
 
-Gates are Proven ranks per **vanilla skill** ([03](03-proven-system.md)). Rank 1 = 150 PP + vanilla
-skill ≥ 30. **Shields are the exception**: Blocking is a single vanilla skill, so its three powers
-stage up the rank ladder (R1 → R2 → R3) rather than all unlocking at once. `DECIDED 2026-08-06`
+### Snap Kick
+
+Shared R3 for every family whose secondary is the kick — **Unarmed, Bows, Crossbows, Elemental,
+Blood**. Confirmed in play: weapons that define no secondary fall back to the unarmed kick.
+
+Sharply reduced wind-up and stronger knockback, and it can be used mid-draw, mid-reload or mid-cast
+**without losing the nock or charge**. That last clause is the point: today a Deathsquito reaching a
+drawing archer costs the whole shot. One honest perk covering five families beats five thin ones.
+
+### Elemental Detonation (R1)
+
+| Target state | Struck by | Result |
+|---|---|---|
+| Burning | **Frost** | explodes; applies frost to creatures around the target |
+| Frozen | **Fire** | explodes, damages nearby, applies burning to them |
+| Frosted / frozen | **Lightning** | amplified lightning damage (no explosion) |
+
+The intended loop is **Fire → Frost → Lightning**: ignite one, detonate with frost to freeze the
+pack, then lightning the frozen pack for amplified damage. Each explosion propagates the *opposite*
+status outward, so every detonation seeds the next. It is self-teaching — a player finds the third
+step by accident.
+
+`StaffGreenRoots` has no direct attack (the poison comes from the summoned
+`staff_greenroots_tentaroot`), so it cannot detonate. It ladders as a summon staff instead: chance
+to summon multiple tentaroots per cast, scaling with rank. **TBD:** whether it counts as
+ElementalMagic or BloodMagic — that lives in prefab data.
+
+### Blood Magic — per staff
+
+| Staff | Ladder |
+|---|---|
+| **StaffSkeleton** | R1 one cast summons the full count instantly · R2 may hold a one-hander in the right hand, secondary attacks only, 40% damage · R3 60% · R4 80% · R5 100% |
+| **StaffShield** | the ward also heals players in range; radius and rate scale with rank |
+| **StaffRedTroll** | chance of an extra `Troll_Summoned`, scaling by rank, capped below 100% at R5 (10/20/30/40/50%) |
+| **StaffGreenRoots** | chance of multiple tentaroots per cast, scaling by rank |
+
+**Lane check (deliberate):** Lost Scrolls II owns *recruited, persistent, levelable companions*.
+These are disposable combat summons that already exist in vanilla, and the StaffSkeleton weapon perk
+is about the player, not the summons. Judged far enough apart — recorded so it is a considered call,
+not an accident.
+
+## Where R5 cannot apply
+
+Verified from the attack dump. The chain finisher needs both a primary chain and a secondary:
+
+| Family | Chain | Secondary | R5 |
+|---|---|---|---|
+| Swords, Knives, Clubs (maces), Axes, Polearms, Unarmed | 3–4 | yes | chain → secondary ✅ |
+| **Spears** | **0** | throw | **instant throw** — after primary pokes, choosing secondary throws with no wind-up. Same intent, expressed on a weapon with no chain |
+| **Sledges** | 0 | none | ❌ nothing at R5. Accepted gap |
+| **Bows, Crossbows** | 0 | kick only | R1 scaling instead |
+| **Staves** | 2 (fireball type) | kick only | R1 scaling instead |
+
+## Verified attack data (2026-08-09)
+
+From `oldways_dumpweapons`. Worth not re-deriving:
+
+| Family | Secondary | Type | Notes |
+|---|---|---|---|
+| Swords 1H | `sword_secondary` | Horizontal | thrust, range 2.7 vs 2.4 primary |
+| Greatswords | `greatsword_secondary` | Horizontal | range 3.0 vs 2.6 |
+| Knives | `knife_secondary` | Horizontal | **leaping downward stab**, 3× stamina (12 → 36) |
+| Clubs (maces) | `mace_secondary` | Vertical | **rising swing**, range 2.5 |
+| Sledges | none | — | Area primary, chain 0 |
+| Axes 1H | `axe_secondary` | Vertical | overhead chop |
+| Dual axes | `dualaxes_secondary` | Horizontal | **quick thrust**; primary chains 4 |
+| Battleaxe | `battleaxe_secondary` | Horizontal | **quick thrust**; costs *half* the primary |
+| Atgeir | `atgeir_secondary` | Horizontal | the spin |
+| Spears | `spear_throw` | Projectile | the throw; primary chain **0** |
+| Fists | `unarmed_kick` | Horizontal | the kick |
+| Bows, Crossbows, Staves | `(none)` defined | — | **fall back to the unarmed kick in play** |
+
+Attack `type` is the motion plane, not the direction — `Vertical` covers both the axe's downward
+chop and the mace's upward swing. Reading it as "overhead" led to two wrong perk proposals.
 
 ## Implementation — the power pipeline
 
-Established by the Phase 2 vertical slice (Swords) and reused by every later power:
-
 - **`Powers/PowerGate.cs`** — the single place a power asks "am I allowed to fire?". Checks the
   master switch, the category switch, Proven rank, and (for rank 1 only) the vanilla skill
-  prerequisite. Defined once rather than thirteen times.
-- **One file per power** in `Powers/`, each with its own level-2 config toggle plus any tuning value
-  it needs.
+  prerequisite.
+- **One file per power** in `Powers/`, each with its own level-2 config toggle plus tuning values.
 - Powers are **local-player-only** and never fire against another player.
-- The client evaluates its own gate against the Proven record the server pushed it. That record is
-  not client-writable, so `raiseskill`, save editing and config editing do not open a power. A
-  modified client could still fire one — the same limit as kill reports ([07](07-technical-architecture.md)).
+- The client evaluates its own gate against the server-pushed Proven record. That record is not
+  client-writable, so `raiseskill`, save editing and config editing do not open a power. A modified
+  client could still fire one — the same limit as kill reports ([07](07-technical-architecture.md)).
 
-### Swords — Duelist's Guard (`Powers/SwordDuelistsGuard.cs`)
+### Swords — Duelist's Guard (`Powers/SwordDuelistsGuard.cs`) `IMPLEMENTED`
 
-Blocking and parrying with a sword works at shield strength: block power and deflection force are
-multiplied (default ×2.5). Vanilla already lets you block with a sword — it is simply so weak that
-nobody does, so the input exists and goes unused. Mastery makes shieldless sword play viable.
+Block power and deflection force ×2.5. Both are needed: block power alone absorbs the hit but fails
+to throw the attacker off, which is half a parry.
 
-Both `GetBlockPower` and `GetDeflectionForce` are boosted. Block power alone would absorb the hit
-but fail to throw the attacker off, which is half a parry and would feel broken.
+**Patches the *methods* `GetBlockPower`/`GetDeflectionForce`, never the `m_blockPower` /
+`m_deflectionForce` fields.** Those live on `SharedData`, shared by every instance of an item type —
+writing them would permanently buff every sword in the world for every player and persist after the
+power was disabled.
 
-**Implementation constraint worth remembering:** this patches the *methods*, never the
-`m_blockPower` / `m_deflectionForce` fields. Those live on `SharedData`, which is shared by every
-instance of an item type — writing to them would permanently buff every sword in the world for every
-player, and would persist after the power was disabled.
+## Cuts
 
-### Cut: Riposte (the original Swords power)
+Powers that were designed, found wanting, and removed. Kept because the reasons generalise.
 
-The handoff specified "parry → guaranteed critical stagger on the follow-up hit." **Cut 2026-08-08
-after implementation, as a no-op.** Vanilla already staggers an attacker on a perfect block, and
-already applies `c_StaggerDamageBonus` to hits against a staggered target — so the power staggered
-something already staggered and claimed credit for a bonus the game was going to give anyway. A
-player could not perceive it.
-
-Kept here as a warning: a power that *reads* well in a design table can still be invisible in play.
-The test for the remaining twelve is not "does this sound good" but "what does vanilla already do
-here, and is there anything left for us to add?"
-
-## Notes per family
-
-- **Bows** — the "hold past full draw" window currently does nothing in vanilla; this power gives that
-  dead input a purpose without changing draw timing for anyone who doesn't hold.
-- **Axes** — the execute needs a hard, readable condition (staggered AND below an HP%) or it becomes an
-  invisible random one-shot. Threshold **TBD**.
-- **Shields (brace)** — the only power with a charge-up. It must have **no UI meter** per the design
-  rule; the feedback has to be diegetic (shield visual/audio state) or nothing.
-- **Blood Magic** — lifesteal must not scale with the HP cost paid, or it becomes a self-damage loop
-  exploit. Fixed or capped value.
-- **Knives** — overlaps with the Sneak skill tweak in [01](01-skill-mastery.md); confirm the two stack
-  cleanly rather than double-applying the muffled-footsteps effect.
-
-## Multiplayer
-
-A power belongs to the player who earned it and works whenever that player wields the weapon —
-regardless of what anyone else in the group has. The "any one Proven player present" rule
-`DECIDED 2026-08-06` governs whether **enemy reactions** switch on for the encounter, not whether a
-player's own power fires. See [04](04-boss-reactions.md).
+| Cut | Was | Why |
+|---|---|---|
+| **Riposte** (Swords) | parry → guaranteed critical stagger | Vanilla already staggers an attacker on a perfect block *and* applies `c_StaggerDamageBonus` against staggered targets. It staggered something already staggered and took credit for a bonus the game was going to give anyway. **Implemented, playtested, invisible.** |
+| **Shield Bash** (Blocking R2) | bash staggers bash-immune types | **There is no shield bash in Valheim** — zero occurrences of "bash" in `assembly_valheim.dll`. It would have required inventing a new input, breaking the design rule. |
+| Knives' muffled footsteps | sneak kill → quiet steps | Already granted by the Sneak tweak in [01](01-skill-mastery.md). We would have collided with ourselves. |
+| Clubs' stagger pulse | charged heavy → AoE stagger | The sledgehammer already *is* a charged AoE stagger (`DoAreaAttack`). |
+| Axes' execute | heavy vs staggered low-HP → kill | The stagger damage bonus usually kills that target anyway — the Riposte trap again. |
+| Shields' stagger negation | perfect parry → negate own stagger | Vanilla perfect block already does this. |
+| Polearms' free spin | spin costs no stamina | A cost reduction, not a capability. The poise half survived into Whirlwind. |
+| Crossbows' mobile reload | reload at speed | Too thin for a signature; survives as the R5 perk. |
+| Elemental's free cast | chance to consume no Eitr | RNG cost reduction, not a technique. |
 
 ## Open items
 
-- Whether powers have an internal cooldown to prevent chaining (e.g. sword parry-crit spam).
-  **PROPOSED:** no hard cooldown — every trigger already costs stamina and requires a precise input,
-  which is the intended rate limit. Revisit if playtest shows parry-crit looping.
-- Axe execute HP threshold (**TBD**, needs a readable number — proposed ≤15% and staggered).
-- Blood Magic lifesteal must be fixed/capped, not scaled to HP paid, or self-damage loops exploit it.
+- Axe execute threshold — moot, the power was cut.
+- `StaffGreenRoots` skill type (ElementalMagic vs BloodMagic).
+- Whether powers need internal cooldowns. **PROPOSED:** no — stamina cost and input precision are
+  the rate limit. Revisit after playtest.
+- Sledges have no R5. Accepted for now.
 
 ## Decision log
 
 | Date | Decision |
 |---|---|
-| (handoff) | All 13 families ship in v1 together. |
-| (handoff) | No new hotkey; every trigger reuses an existing input. |
-| 2026-08-06 | Gates are per-vanilla-skill Proven ranks; shields stage across Blocking R1/R2/R3. |
+| (handoff) | All families ship in v1 together; no new hotkey. |
+| 2026-08-06 | Gates are per-vanilla-skill Proven ranks. |
 | 2026-08-06 | A player's own power is never gated on other players' Proven. |
-| 2026-08-08 | **Phase 2 power pipeline established** via `PowerGate`. |
-| 2026-08-08 | **Riposte cut as a no-op** — vanilla already staggers on parry and already rewards hitting staggered targets. |
-| 2026-08-08 | **Swords power is now Duelist's Guard** — sword blocks/parries at shield strength, ×2.5 configurable. |
+| 2026-08-08 | Power pipeline established via `PowerGate`. |
+| 2026-08-08 | Riposte cut as a no-op; Swords power is now Duelist's Guard. |
+| 2026-08-09 | **Five-rank ladder adopted** — R1 signature, R3 secondary perk, R5 chain→secondary. Ranks 2–5 are no longer curve-only. |
+| 2026-08-09 | **Shield bash cut** — it does not exist in Valheim. Blocking ladder rebuilt on parry and held block. |
+| 2026-08-09 | Nine of thirteen powers replaced after auditing the handoff table against vanilla behaviour. |
+| 2026-08-09 | R3 perks re-derived from the real attack dump after two were designed against misread animations. |
+| 2026-08-09 | Spear R5 is an instant throw rather than a chain finisher — spears have no primary chain. |
+| 2026-08-09 | Snap Kick shared across the five kick-fallback families. |
