@@ -40,7 +40,7 @@ see *Where R5 cannot apply*.
 | **Spears** | **Impale** — a charged throw pins a non-boss target briefly | **Recall** — press block to return a thrown spear to your hand | **instant throw** — see below |
 | **Bows** | **Piercing Shot** — holding past full draw pierces targets; count scales with rank (1→5) | **Snap Kick** | no damage falloff between pierced targets |
 | **Crossbows** | **Steady Aim** — a braced, stationary shot ignores armour and cannot be deflected | **Snap Kick** | reload at full movement speed |
-| **Unarmed** | **Flow** — consecutive landed punches shorten the next punch's recovery; resets on a miss or a hit taken | **Snap Kick** | **punch → punch → kick** |
+| **Unarmed** | **Flow** — `BLOCKED`, see below | **Snap Kick** | **punch → punch → kick** |
 | **Elemental** | **Elemental Detonation** — see the combo table | **Snap Kick** | detonations chain to further afflicted targets |
 | **Blood** | per-staff ladder — see below | **Snap Kick** | per-staff ladder |
 | **Blocking** | **Deflection** — a perfect parry returns a projectile or spell to its sender | R3 **Immovable** — cannot be knocked back or displaced while braced | R5 **Unbreakable** — a single hit can no longer break your guard |
@@ -130,6 +130,25 @@ chop and the mace's upward swing. Reading it as "overhead" led to two wrong perk
 - The client evaluates its own gate against the server-pushed Proven record. That record is not
   client-writable, so `raiseskill`, save editing and config editing do not open a power. A modified
   client could still fire one — the same limit as kill reports ([07](07-technical-architecture.md)).
+
+### Unarmed — Flow `BLOCKED 2026-08-09`
+
+Flow was specified as "consecutive landed punches shorten the next punch's recovery". **Valheim has
+no per-attack speed lever.** Attack timing is animation-driven; the only speed control is
+`ZSyncAnimation.SetSpeed`, which scales the character's *entire* animator — walking, blocking,
+everything — and is network-synced. `Attack.m_speedFactor` is movement speed *during* an attack, not
+the attack's own speed.
+
+Two ways to keep the intent (reward sustained, accurate aggression) with a clean mechanism:
+
+1. **Stamina Flow** — each consecutive landed punch reduces the next punch's stamina cost, down to a
+   floor; resets on a miss or on taking a hit. Fists drain stamina badly, so this is felt
+   immediately, and it hooks a real vanilla path rather than the animator.
+2. **Chain Flow** — consecutive landed punches keep the attack chain alive far longer than
+   `m_chainAttackMaxTime` normally allows, so an unbroken streak never drops back to the first
+   punch. Closest to "flow" literally, and it feeds directly into the R5 punch-punch-kick chain.
+
+Needs a decision before Unarmed R1 can be built. Everything else in Phase 3 is done.
 
 ### Swords — Duelist's Guard (`Powers/SwordDuelistsGuard.cs`) `IMPLEMENTED`
 

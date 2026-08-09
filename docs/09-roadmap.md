@@ -101,7 +101,7 @@ Equip a sword and **no shield** throughout.
 6. Try a troll or something heavier to see where the ceiling sits, and tune
    `Swords - Duelist's Guard Multiplier` if 2.5 is too weak or too strong.
 
-## Phase 3 — Remaining melee  `NEXT`
+## Phase 3 — Remaining melee  `R1 CODE COMPLETE (5 of 6), UNTESTED`
 
 Knives, Clubs, Axes, Polearms, Spears — plus **Unarmed**, added to the roster 2026-08-09.
 
@@ -111,14 +111,28 @@ patching) is written once rather than six times.
 
 | Family | R1 | R3 | R5 |
 |---|---|---|---|
-| Knives | Vanish | Falling Fang | chain → leap |
-| Clubs | Guard Crusher | Uplift | chain → rising swing |
-| Axes | Hook | Cleave / Splitting Blow | chain → secondary |
-| Polearms | Set Against the Charge | Whirlwind | chain → whirlwind |
-| Spears | Impale | Recall | instant throw |
-| Unarmed | Flow | Snap Kick | punch → punch → kick |
+| Knives | ✅ Vanish | Falling Fang | chain → leap |
+| Clubs | ✅ Guard Crusher | Uplift | chain → rising swing |
+| Axes | ✅ Hook | Cleave / Splitting Blow | chain → secondary |
+| Polearms | ✅ Set Against the Charge | Whirlwind | chain → whirlwind |
+| Spears | ✅ Impale | Recall | instant throw |
+| Unarmed | ⛔ Flow — blocked, no attack-speed lever | Snap Kick | punch → punch → kick |
 
 Full detail in [02](02-weapon-mastery.md).
+
+### R1 acceptance test
+
+`proven_grant <skill> 150` per family (vanilla skill 30+ also required), then:
+
+| Power | Check |
+|---|---|
+| Guard Crusher | Hit a blocking Draugr with a mace — the block should not hold |
+| Hook | Hit anything with an axe — it should be dragged toward you, not away |
+| Vanish | Sneak-kill with a knife in a group — the others should lose track of you |
+| Set Against the Charge | Hold block with an atgeir and let a boar charge — it should be thrown back and hurt. Walking into your guard should do nothing |
+| Impale | Throw a spear at a Greydwarf — it should be held ~3 s. Throw at a boss — nothing, by design |
+
+Each logs its own line when verbose logging is on.
 
 ## Phase 4 — Ranged + shields
 

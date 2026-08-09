@@ -87,6 +87,22 @@ namespace OldWays
         internal static ConfigEntry<bool> SwordDuelistsGuardEnabled;
         internal static ConfigEntry<float> SwordDuelistsGuardBlockMult;
 
+        internal static ConfigEntry<bool> ClubGuardCrusherEnabled;
+
+        internal static ConfigEntry<bool> AxeHookEnabled;
+        internal static ConfigEntry<float> AxeHookPullMultiplier;
+
+        internal static ConfigEntry<bool> KnifeVanishEnabled;
+        internal static ConfigEntry<float> KnifeVanishRadius;
+
+        internal static ConfigEntry<bool> PolearmBraceEnabled;
+        internal static ConfigEntry<float> PolearmBraceMinSpeed;
+        internal static ConfigEntry<float> PolearmBraceDamagePerSpeed;
+        internal static ConfigEntry<float> PolearmBracePushForce;
+
+        internal static ConfigEntry<bool> SpearImpaleEnabled;
+        internal static ConfigEntry<float> SpearImpaleDuration;
+
         internal static void Bind(ConfigFile cfg)
         {
             // Bound directly rather than through Bind() because ServerSync registers it as the
@@ -151,6 +167,34 @@ namespace OldWays
             SwordDuelistsGuardBlockMult = Bind(cfg, SecPowers, "Swords - Duelists Guard Multiplier", 2.5f,
                 "Multiplier applied to a sword's block power and deflection force. 2.5 puts a good " +
                 "sword roughly in shield territory; raise it if shieldless play still feels unviable.");
+
+            ClubGuardCrusherEnabled = Bind(cfg, SecPowers, "Clubs - Guard Crusher", true,
+                "Clubs, rank 1: club blows break through a creature's raised guard.");
+
+            AxeHookEnabled = Bind(cfg, SecPowers, "Axes - Hook", true,
+                "Axes, rank 1: axe hits drag the target toward you instead of pushing it away.");
+            AxeHookPullMultiplier = Bind(cfg, SecPowers, "Axes - Hook Pull Multiplier", 1.0f,
+                "Scales the reversed knockback. 1.0 keeps the hit's own force, only reversed — " +
+                "raise it if a pull does not visibly reposition anything.");
+
+            KnifeVanishEnabled = Bind(cfg, SecPowers, "Knives - Vanish", true,
+                "Knives, rank 1: a sneak-attack kill makes nearby creatures lose track of you.");
+            KnifeVanishRadius = Bind(cfg, SecPowers, "Knives - Vanish Radius", 20f,
+                "Metres around you within which creatures forget their target.");
+
+            PolearmBraceEnabled = Bind(cfg, SecPowers, "Polearms - Set Against The Charge", true,
+                "Polearms, rank 1: blocking with an atgeir impales a creature that charges you.");
+            PolearmBraceMinSpeed = Bind(cfg, SecPowers, "Polearms - Minimum Charge Speed", 4f,
+                "Metres per second the attacker must be closing at for it to count as a charge.");
+            PolearmBraceDamagePerSpeed = Bind(cfg, SecPowers, "Polearms - Damage Per Closing Speed", 6f,
+                "Pierce damage per m/s of closing speed. The charger's own commitment sets the damage.");
+            PolearmBracePushForce = Bind(cfg, SecPowers, "Polearms - Impale Push Force", 30f,
+                "Force with which an impaled charger is thrown back.");
+
+            SpearImpaleEnabled = Bind(cfg, SecPowers, "Spears - Impale", true,
+                "Spears, rank 1: a thrown spear pins a non-boss target in place.");
+            SpearImpaleDuration = Bind(cfg, SecPowers, "Spears - Impale Duration", 3f,
+                "Seconds a pinned creature is held. Bosses are never pinned.");
         }
 
         /// <summary>

@@ -44,5 +44,34 @@ namespace OldWays
             return character != null && Player.m_localPlayer != null &&
                    character == (Character)Player.m_localPlayer;
         }
+
+        /// <summary>
+        /// True when this hit came from the local player using the given skill, and that skill's
+        /// power is unlocked at the required rank. The common shape of almost every power.
+        ///
+        /// Also excludes hits on other players — powers never fire in PvP.
+        /// </summary>
+        internal static bool LocalHit(HitData hit, Character victim, Skills.SkillType skill, int requiredRank)
+        {
+            if (hit == null) return false;
+            if (hit.m_skill != skill) return false;
+            if (victim != null && victim.IsPlayer()) return false;
+
+            Player local = Player.m_localPlayer;
+            if (local == null) return false;
+
+            ZNetView view = local.GetComponent<ZNetView>();
+            if (view == null || !view.IsValid()) return false;
+            if (hit.m_attacker != view.GetZDO().m_uid) return false;
+
+            return Unlocked(skill, requiredRank);
+        }
+
+        /// <summary>The skill of the weapon the local player is currently holding, or None.</summary>
+        internal static Skills.SkillType CurrentWeaponSkill(Humanoid humanoid)
+        {
+            ItemDrop.ItemData weapon = humanoid?.GetCurrentWeapon();
+            return weapon?.m_shared == null ? Skills.SkillType.None : weapon.m_shared.m_skillType;
+        }
     }
 }

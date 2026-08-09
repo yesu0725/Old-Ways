@@ -26,6 +26,7 @@ namespace OldWays
             internal Skills.SkillType Skill;
             internal float Time;
             internal bool Sneak;
+            internal bool Reported;
         }
 
         // Keyed by the victim's instance id. Cleared on death; swept periodically so a creature
@@ -89,7 +90,12 @@ namespace OldWays
                     Trace($"'{__instance.name}' died with no recorded tracked hit — nothing to credit.");
                     return;
                 }
-                LastHits.Remove(id);
+
+                // Not removed here: powers (KnifeVanish) also patch OnDeath and need to read the
+                // killing blow, and patch order between them is not guaranteed. A Reported flag
+                // keeps the award single-shot while leaving the record readable; Sweep expires it.
+                if (last.Reported) return;
+                last.Reported = true;
 
                 // Stale killing blow — something else finished it (drowning, fire, another player's
                 // DoT). Not a trial.
@@ -135,6 +141,31 @@ namespace OldWays
                     IsBossFightActive(local),
                     last.Sneak);
             }
+        }
+
+        /// <summary>
+        /// The killing blow the local player landed on this victim, if any and if recent. Powers
+        /// that trigger on a kill (docs/02) read attribution from here rather than re-deriving it.
+        /// </summary>
+        internal static bool TryGetKillingBlow(Character victim, out Skills.SkillType skill, out bool sneak)
+        {
+            skill = Skills.SkillType.None;
+            sneak = false;
+
+            if (victim == null) return false;
+            if (!LastHits.TryGetValue(victim.GetInstanceID(), out LastHit last)) return false;
+            if (Time.time - last.Time > HitMemorySeconds) return false;
+
+            Player local = Player.m_localPlayer;
+            if (local == null) return false;
+
+            ZNetView view = local.GetComponent<ZNetView>();
+            if (view == null || !view.IsValid()) return false;
+            if (last.Attacker != view.GetZDO().m_uid) return false;
+
+            skill = last.Skill;
+            sneak = last.Sneak;
+            return true;
         }
 
         /// <summary>
