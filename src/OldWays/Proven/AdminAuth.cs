@@ -13,20 +13,35 @@ namespace OldWays
         internal static bool IsSenderAdmin(long sender)
         {
             ZNet net = ZNet.instance;
-            if (net == null) return false;
-
-            // Listen server: the host's own routed RPC comes from their own session.
-            if (sender == 0L || (Player.m_localPlayer != null && net.LocalPlayerIsAdminOrHost() &&
-                                 sender == ZDOMan.GetSessionID()))
+            if (net == null)
             {
-                return true;
+                Plugin.Log.LogWarning("[AdminAuth] no ZNet — refusing.");
+                return false;
             }
 
+            // Host or single player: the command came from this machine, which is also the server.
+            // GetPeer() returns null for ourselves, so peer lookup can never authorise the host —
+            // this branch has to catch it. Checked by "is there a peer for this id" rather than by
+            // comparing session ids, which do not always match the routed-RPC sender.
             ZNetPeer peer = net.GetPeer(sender);
-            if (peer?.m_socket == null) return false;
+            if (peer == null)
+            {
+                bool localAdmin = Player.m_localPlayer != null && net.LocalPlayerIsAdminOrHost();
+                Plugin.Log.LogInfo($"[AdminAuth] sender {sender} has no peer — treating as host. " +
+                                   $"LocalPlayerIsAdminOrHost={localAdmin}.");
+                return localAdmin;
+            }
+
+            if (peer.m_socket == null)
+            {
+                Plugin.Log.LogWarning($"[AdminAuth] peer {sender} has no socket — refusing.");
+                return false;
+            }
 
             string hostName = peer.m_socket.GetHostName();
-            return !string.IsNullOrEmpty(hostName) && net.IsAdmin(hostName);
+            bool isAdmin = !string.IsNullOrEmpty(hostName) && net.IsAdmin(hostName);
+            Plugin.Log.LogInfo($"[AdminAuth] peer {sender} host='{hostName}' isAdmin={isAdmin}.");
+            return isAdmin;
         }
 
         /// <summary>Logs and refuses. Every refusal leaves a trace, so bypass attempts are visible.</summary>

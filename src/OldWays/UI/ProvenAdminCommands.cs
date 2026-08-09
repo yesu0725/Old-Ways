@@ -57,10 +57,15 @@ namespace OldWays
 
             private static void Command(string name, string help, Terminal.ConsoleEvent action)
             {
+                // onlyAdmin is deliberately FALSE. It is a client-side convenience flag, not the
+                // security boundary — the server re-verifies every one of these through AdminAuth
+                // before touching the store, and a non-admin gets a clear refusal instead of a
+                // command that silently does not exist. Leaving it true also risks blocking the
+                // host's own use, since admin status resolves differently in single player.
                 new Terminal.ConsoleCommand(name, help, action,
                     isCheat: true, isNetwork: false, onlyServer: false, isSecret: false,
                     allowInDevBuild: false, optionsFetcher: null, alwaysRefreshTabOptions: false,
-                    remoteCommand: false, onlyAdmin: true);
+                    remoteCommand: false, onlyAdmin: false);
             }
         }
 
@@ -69,11 +74,18 @@ namespace OldWays
         private static bool Ready(Terminal.ConsoleEventArgs args)
         {
             _lastContext = args.Context;
+
             if (ZRoutedRpc.instance == null || Player.m_localPlayer == null)
             {
                 args.Context.AddString("Not in a world.");
                 return false;
             }
+
+            // These commands are a round trip to the server. If anything goes wrong in transit the
+            // player sees nothing at all, so announce the send — a missing "sent" line and a
+            // missing reply are different faults.
+            Plugin.Log.LogInfo($"[Admin] '{args.FullLine}' — sending to server " +
+                               $"(IsServer={ZNet.instance != null && ZNet.instance.IsServer()}).");
             return true;
         }
 
@@ -163,7 +175,16 @@ namespace OldWays
 
         private static bool ServerReady(long sender, string what)
         {
-            if (ZNet.instance == null || !ZNet.instance.IsServer()) return false;
+            if (ZNet.instance == null || !ZNet.instance.IsServer())
+            {
+                // Reached a client. Harmless — the server handles the real one — but log it so a
+                // "nothing happened" report can be told apart from a lost packet.
+                Plugin.Log.LogInfo($"[Admin] {what} RPC arrived on a non-server instance; ignoring.");
+                return false;
+            }
+
+            Plugin.Log.LogInfo($"[Admin] {what} received from peer {sender}.");
+
             if (!AdminAuth.IsSenderAdmin(sender))
             {
                 AdminAuth.Refuse(sender, what);
@@ -275,6 +296,10 @@ namespace OldWays
 
         private static void Reply(long peer, string message)
         {
+            // Always log server-side too. On a host the reply also round-trips, and if that fails
+            // the log is the only record of what the server decided.
+            Plugin.Log.LogInfo($"[Admin] reply to {peer}: {message}");
+
             var pkg = new ZPackage();
             pkg.Write(message ?? "");
             ZRoutedRpc.instance?.InvokeRoutedRPC(peer, RpcReply, pkg);
@@ -284,7 +309,7 @@ namespace OldWays
         {
             string message = pkg.ReadString();
             if (_lastContext != null) _lastContext.AddString(message);
-            else Plugin.Log.LogInfo("[Proven] " + message);
+            else Plugin.Log.LogInfo("[Admin] " + message);
         }
     }
 }

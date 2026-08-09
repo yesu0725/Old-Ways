@@ -38,12 +38,15 @@ namespace OldWays
         {
             private static void Postfix()
             {
+                // onlyAdmin false by design — see the note in ProvenAdminCommands. The server's
+                // AdminAuth check is the boundary; the client flag only decides visibility, and
+                // leaving it on can block the host's own use.
                 new Terminal.ConsoleCommand("proven_grant",
-                    "[skill] [points] - grant Proven Points for testing (admin only)",
+                    "[skill] [points] - grant Proven Points for testing (admin only, enforced server-side)",
                     Run,
                     isCheat: true, isNetwork: false, onlyServer: false, isSecret: false,
                     allowInDevBuild: false, optionsFetcher: SkillOptions,
-                    alwaysRefreshTabOptions: false, remoteCommand: false, onlyAdmin: true);
+                    alwaysRefreshTabOptions: false, remoteCommand: false, onlyAdmin: false);
             }
         }
 
