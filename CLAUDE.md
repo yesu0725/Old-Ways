@@ -43,6 +43,7 @@ mastery. Nothing is bolted on: every effect finishes something vanilla started.
 | [Technical architecture](docs/07-technical-architecture.md) | BepInEx/Harmony layout, save data, multiplayer sync, config |
 | [Open questions](docs/08-open-questions.md) | Pending decisions + answered log |
 | [Build roadmap](docs/09-roadmap.md) | Phase plan, Phase 0 → 9 |
+| [Test plans](docs/10-test-plans.md) | Step-by-step in-game verification per phase, + results log |
 
 ## Core mechanics at a glance
 

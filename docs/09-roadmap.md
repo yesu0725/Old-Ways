@@ -122,18 +122,8 @@ Full detail in [02](02-weapon-mastery.md).
 
 ### R1 acceptance test
 
-`proven_grant <skill> 150` per family (vanilla skill 30+ also required), then:
-
-| Power | Check |
-|---|---|
-| Guard Crusher | Hit a blocking Draugr with a mace — the block should not hold |
-| Hook | Hit anything with an axe — it should be dragged toward you, not away |
-| Vanish | Sneak-kill with a knife in a group — the others should lose track of you |
-| Set Against the Charge | Hold block with an atgeir and let a boar charge — it should be thrown back and hurt. Walking into your guard should do nothing |
-| Impale | Throw a spear at a Greydwarf — it should be held ~3 s. Throw at a boss — nothing, by design |
-| Flow | Punch something repeatedly bare-handed — the combo should keep cycling instead of resetting between swings. Get hit and it should drop |
-
-Each logs its own line when verbose logging is on.
+Full step-by-step plan, with exact commands and what each failure mode looks like:
+**[10-test-plans.md](10-test-plans.md)**.
 
 ## Phase 4 — Ranged + shields
 
