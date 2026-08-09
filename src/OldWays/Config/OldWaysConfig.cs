@@ -103,6 +103,9 @@ namespace OldWays
         internal static ConfigEntry<bool> SpearImpaleEnabled;
         internal static ConfigEntry<float> SpearImpaleDuration;
 
+        internal static ConfigEntry<bool> UnarmedFlowEnabled;
+        internal static ConfigEntry<float> UnarmedFlowWindow;
+
         internal static void Bind(ConfigFile cfg)
         {
             // Bound directly rather than through Bind() because ServerSync registers it as the
@@ -195,6 +198,11 @@ namespace OldWays
                 "Spears, rank 1: a thrown spear pins a non-boss target in place.");
             SpearImpaleDuration = Bind(cfg, SecPowers, "Spears - Impale Duration", 3f,
                 "Seconds a pinned creature is held. Bosses are never pinned.");
+
+            UnarmedFlowEnabled = Bind(cfg, SecPowers, "Unarmed - Flow", true,
+                "Unarmed, rank 1: landing bare-handed blows keeps your attack chain from resetting.");
+            UnarmedFlowWindow = Bind(cfg, SecPowers, "Unarmed - Flow Window", 3f,
+                "Seconds a landed blow keeps the streak alive. Taking a hit ends it immediately.");
         }
 
         /// <summary>

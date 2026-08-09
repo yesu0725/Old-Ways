@@ -40,7 +40,7 @@ see *Where R5 cannot apply*.
 | **Spears** | **Impale** — a charged throw pins a non-boss target briefly | **Recall** — press block to return a thrown spear to your hand | **instant throw** — see below |
 | **Bows** | **Piercing Shot** — holding past full draw pierces targets; count scales with rank (1→5) | **Snap Kick** | no damage falloff between pierced targets |
 | **Crossbows** | **Steady Aim** — a braced, stationary shot ignores armour and cannot be deflected | **Snap Kick** | reload at full movement speed |
-| **Unarmed** | **Flow** — `BLOCKED`, see below | **Snap Kick** | **punch → punch → kick** |
+| **Unarmed** | **Flow** — landing blows keeps your attack chain from resetting | **Snap Kick** | **punch → punch → kick** |
 | **Elemental** | **Elemental Detonation** — see the combo table | **Snap Kick** | detonations chain to further afflicted targets |
 | **Blood** | per-staff ladder — see below | **Snap Kick** | per-staff ladder |
 | **Blocking** | **Deflection** — a perfect parry returns a projectile or spell to its sender | R3 **Immovable** — cannot be knocked back or displaced while braced | R5 **Unbreakable** — a single hit can no longer break your guard |
@@ -131,24 +131,26 @@ chop and the mace's upward swing. Reading it as "overhead" led to two wrong perk
   client-writable, so `raiseskill`, save editing and config editing do not open a power. A modified
   client could still fire one — the same limit as kill reports ([07](07-technical-architecture.md)).
 
-### Unarmed — Flow `BLOCKED 2026-08-09`
+### Unarmed — Flow (`Powers/UnarmedFlow.cs`) `IMPLEMENTED`
 
-Flow was specified as "consecutive landed punches shorten the next punch's recovery". **Valheim has
-no per-attack speed lever.** Attack timing is animation-driven; the only speed control is
-`ZSyncAnimation.SetSpeed`, which scales the character's *entire* animator — walking, blocking,
-everything — and is network-synced. `Attack.m_speedFactor` is movement speed *during* an attack, not
-the attack's own speed.
+While you keep landing bare-handed blows, the attack chain never resets. Vanilla drops the chain
+back to its first level after `m_chainAttackMaxTime`, which for fists means rarely reaching the
+finisher and its `m_lastChainDamageMultiplier`.
 
-Two ways to keep the intent (reward sustained, accurate aggression) with a clean mechanism:
+**Not attack speed, and why.** Flow was first specified as shortening the next punch's recovery.
+Valheim has **no per-attack speed lever** — timing is animation-driven, and the only control is
+`ZSyncAnimation.SetSpeed`, which scales the character's whole animator (walking, blocking,
+everything) and is network-synced. `Attack.m_speedFactor` turned out to be movement speed *during*
+an attack. Chain Flow expresses the same intent through a mechanism vanilla actually has, and it
+feeds straight into the R5 punch → punch → kick.
 
-1. **Stamina Flow** — each consecutive landed punch reduces the next punch's stamina cost, down to a
-   floor; resets on a miss or on taking a hit. Fists drain stamina badly, so this is felt
-   immediately, and it hooks a real vanilla path rather than the animator.
-2. **Chain Flow** — consecutive landed punches keep the attack chain alive far longer than
-   `m_chainAttackMaxTime` normally allows, so an unbroken streak never drops back to the first
-   punch. Closest to "flow" literally, and it feeds directly into the R5 punch-punch-kick chain.
+**Implementation constraint:** patches `Attack.CanStartChainAttack` (per-attack), **not**
+`m_chainAttackMaxTime` — that is a private *static*, so writing it would change chain timing for
+every weapon in the game for every player. Same class of trap as `SharedData` in Duelist's Guard.
 
-Needs a decision before Unarmed R1 can be built. Everything else in Phase 3 is done.
+**Known simplification:** a miss does not break the streak outright, it just fails to refresh it, so
+the window lapses. Valheim has no clean "this swing hit nothing" signal, and a lapse reads the same
+in play. Taking a hit ends the streak immediately.
 
 ### Swords — Duelist's Guard (`Powers/SwordDuelistsGuard.cs`) `IMPLEMENTED`
 
@@ -199,3 +201,5 @@ Powers that were designed, found wanting, and removed. Kept because the reasons 
 | 2026-08-09 | R3 perks re-derived from the real attack dump after two were designed against misread animations. |
 | 2026-08-09 | Spear R5 is an instant throw rather than a chain finisher — spears have no primary chain. |
 | 2026-08-09 | Snap Kick shared across the five kick-fallback families. |
+| 2026-08-09 | **Phase 3 R1 implemented** for all six melee families. |
+| 2026-08-09 | Flow is **Chain Flow**, not attack speed — Valheim has no per-attack speed lever. |

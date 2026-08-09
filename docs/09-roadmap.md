@@ -101,7 +101,7 @@ Equip a sword and **no shield** throughout.
 6. Try a troll or something heavier to see where the ceiling sits, and tune
    `Swords - Duelist's Guard Multiplier` if 2.5 is too weak or too strong.
 
-## Phase 3 — Remaining melee  `R1 CODE COMPLETE (5 of 6), UNTESTED`
+## Phase 3 — Remaining melee  `R1 CODE COMPLETE, UNTESTED IN-GAME`
 
 Knives, Clubs, Axes, Polearms, Spears — plus **Unarmed**, added to the roster 2026-08-09.
 
@@ -116,7 +116,7 @@ patching) is written once rather than six times.
 | Axes | ✅ Hook | Cleave / Splitting Blow | chain → secondary |
 | Polearms | ✅ Set Against the Charge | Whirlwind | chain → whirlwind |
 | Spears | ✅ Impale | Recall | instant throw |
-| Unarmed | ⛔ Flow — blocked, no attack-speed lever | Snap Kick | punch → punch → kick |
+| Unarmed | ✅ Flow (chain-based) | Snap Kick | punch → punch → kick |
 
 Full detail in [02](02-weapon-mastery.md).
 
@@ -131,6 +131,7 @@ Full detail in [02](02-weapon-mastery.md).
 | Vanish | Sneak-kill with a knife in a group — the others should lose track of you |
 | Set Against the Charge | Hold block with an atgeir and let a boar charge — it should be thrown back and hurt. Walking into your guard should do nothing |
 | Impale | Throw a spear at a Greydwarf — it should be held ~3 s. Throw at a boss — nothing, by design |
+| Flow | Punch something repeatedly bare-handed — the combo should keep cycling instead of resetting between swings. Get hit and it should drop |
 
 Each logs its own line when verbose logging is on.
 
