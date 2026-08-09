@@ -53,8 +53,14 @@ namespace OldWays
                 ItemDrop.ItemData.SharedData shared = drop?.m_itemData?.m_shared;
                 if (shared == null) continue;
 
-                // Weapons and fists only. Everything else has no attack worth reporting.
+                // Weapons and fists only. Two filters are needed:
+                //  - m_skillType defaults to Swords, so every material and armour piece claims to
+                //    be a sword; require an actual weapon item type as well.
+                //  - creature attacks ("Abomination_attack1") are real items in ObjectDB but carry
+                //    no inventory icon, which is the cleanest way to tell them from player gear.
                 if (!IsInteresting(shared.m_skillType)) continue;
+                if (!IsWeaponType(shared.m_itemType)) continue;
+                if (shared.m_icons == null || shared.m_icons.Length == 0) continue;
 
                 if (!bySkill.TryGetValue(shared.m_skillType, out List<string> lines))
                 {
@@ -103,6 +109,15 @@ namespace OldWays
         {
             if (skill == Skills.SkillType.Unarmed) return true;
             return ProvenSkills.IsTracked(skill);
+        }
+
+        private static bool IsWeaponType(ItemDrop.ItemData.ItemType type)
+        {
+            return type == ItemDrop.ItemData.ItemType.OneHandedWeapon
+                || type == ItemDrop.ItemData.ItemType.TwoHandedWeapon
+                || type == ItemDrop.ItemData.ItemType.TwoHandedWeaponLeft
+                || type == ItemDrop.ItemData.ItemType.Bow
+                || type == ItemDrop.ItemData.ItemType.Shield;
         }
 
         private static string Describe(Attack attack)
