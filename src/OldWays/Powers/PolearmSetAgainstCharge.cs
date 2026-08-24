@@ -60,6 +60,7 @@ namespace OldWays
 
                 attacker.Damage(impale);
                 attacker.Stagger(-toPlayer.normalized);
+                Effects.SpawnOn(OldWaysConfig.FxSetAgainstCharge.Value, attacker);
 
                 if (OldWaysConfig.VerboseLogging.Value)
                     Plugin.Log.LogInfo($"[SetAgainstCharge] impaled '{attacker.name}' at {closingSpeed:0.#} m/s " +

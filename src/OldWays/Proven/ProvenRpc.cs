@@ -75,6 +75,7 @@ namespace OldWays
                 if (__instance.IsServer()) ProvenStore.Save(force: true);
                 LocalRecord = new ProvenRecord();
                 LocalRecordReceived = false;
+                Effects.Clear();     // prefab lookups belong to the world we are leaving
             }
         }
 
@@ -210,12 +211,44 @@ namespace OldWays
         {
             try
             {
+                ProvenRecord previous = LocalRecord;
+                bool hadRecord = LocalRecordReceived;
+
                 LocalRecord = ProvenRecord.Deserialize(pkg.ReadString());
                 LocalRecordReceived = true;
+
+                // The server is the only thing that knows a rank was earned, and it learns it in
+                // the same breath as awarding the points. Announce it here, where the new values
+                // land, rather than sending a second message that could arrive out of order.
+                //
+                // Skipped on the first sync of a session: that one carries everything you already
+                // had, and celebrating it would fire on every login.
+                if (hadRecord) AnnounceRankUps(previous, LocalRecord);
             }
             catch (Exception e)
             {
                 Plugin.Log.LogError($"[Proven] bad sync package: {e.Message}");
+            }
+        }
+
+        private static void AnnounceRankUps(ProvenRecord before, ProvenRecord after)
+        {
+            Player local = Player.m_localPlayer;
+            if (local == null) return;
+
+            foreach (Skills.SkillType skill in ProvenSkills.Tracked)
+            {
+                int oldRank = before.GetRank(skill);
+                int newRank = after.GetRank(skill);
+                if (newRank <= oldRank) continue;
+
+                local.Message(MessageHud.MessageType.TopLeft,
+                    $"Your hands remember. {skill} — {ProvenSkills.RankName(newRank)}.", 0, null);
+
+                Effects.SpawnOn(OldWaysConfig.FxRankUp.Value, local);
+
+                Plugin.Log.LogInfo($"[Proven] rank up: {skill} {oldRank} -> {newRank} " +
+                                   $"({ProvenSkills.RankName(newRank)}).");
             }
         }
 

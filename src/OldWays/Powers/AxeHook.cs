@@ -41,6 +41,8 @@ namespace OldWays
                 hit.m_dir = toAttacker.normalized;
                 hit.m_pushForce *= OldWaysConfig.AxeHookPullMultiplier.Value;
 
+                Effects.SpawnOn(OldWaysConfig.FxHook.Value, __instance);
+
                 if (OldWaysConfig.VerboseLogging.Value)
                     Plugin.Log.LogInfo($"[Hook] pulling '{__instance.name}' (force {hit.m_pushForce:0.#}).");
             }

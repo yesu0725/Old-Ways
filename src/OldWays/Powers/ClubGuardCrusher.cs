@@ -32,6 +32,7 @@ namespace OldWays
 
                 // Skip vanilla's block entirely: the hit lands as though no guard were raised.
                 __result = false;
+                Effects.SpawnOn(OldWaysConfig.FxGuardCrusher.Value, __instance);
 
                 if (OldWaysConfig.VerboseLogging.Value)
                     Plugin.Log.LogInfo($"[GuardCrusher] broke '{__instance.name}' guard.");

@@ -162,6 +162,45 @@ to throw the attacker off, which is half a parry.
 writing them would permanently buff every sword in the world for every player and persist after the
 power was disabled.
 
+## Visual feedback — `IMPLEMENTED 2026-08-09`
+
+Every power that fires plays a **vanilla** effect prefab, plus a rank-up effect and message when a
+Proven rank is earned. `Util/Effects.cs`; names configured under `5 - Visual Effects`.
+
+**Vanilla assets only** (CLAUDE.md) — nothing here creates art. Effects are existing prefabs looked
+up from `ZNetScene` by name.
+
+Effect names live in prefab data and cannot be verified statically, which is exactly the trap that
+produced Riposte and shield bash. Two defences:
+
+- Each entry is a **comma-separated candidate list**; the first name that exists wins, so a wrong
+  guess costs nothing as long as one candidate is real.
+- A list where nothing resolves **logs once, naming every candidate tried**, then stays silent. A
+  missing effect must never spam or throw — it is decoration.
+
+Run **`oldways_dumpeffects`** for the real prefab list and put verified names in config.
+
+| Trigger | Config entry |
+|---|---|
+| Proven rank earned | `Rank Up` — also prints *"Your hands remember. &lt;Skill&gt; — &lt;Rank&gt;."* |
+| Sword parry carried by Duelist's Guard | `Swords - Duelists Guard` |
+| A club breaking a raised guard | `Clubs - Guard Crusher` |
+| A target dragged in by Hook | `Axes - Hook` |
+| Slipping out of sight with Vanish | `Knives - Vanish` |
+| A pinned target | `Spears - Impale` |
+| A charger impaling itself | `Polearms - Set Against The Charge` |
+
+Deliberate restraints:
+
+- **Duelist's Guard fires on parries only.** A held block firing on every incoming hit would be
+  noise, and the power is about the parry.
+- **Vanish fires only when it actually cleared someone.** An effect on a no-op reads as a lie.
+- **Flow has no effect.** It triggers on every held chain link; anything visual would strobe.
+
+**Known limitation:** effects are spawned locally and are **not networked**, so other players do not
+see them. Acceptable while every power is local-player-only. Revisit if a power ever needs to read
+to a group.
+
 ## Cuts
 
 Powers that were designed, found wanting, and removed. Kept because the reasons generalise.

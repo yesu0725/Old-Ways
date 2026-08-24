@@ -248,6 +248,33 @@ Equip a mace and attack them repeatedly, especially head-on.
 
 ---
 
+### Test 7 — Visual effects
+
+Do this **first**, before the power tests — it takes one command and tells you whether the guessed
+prefab names resolved:
+
+```
+oldways_dumpeffects
+```
+
+Writes every vanilla effect prefab to `BepInEx/config/OldWays/effect_prefabs.txt` **on the client**.
+
+Then watch for this in the client log while testing the powers above:
+
+| | |
+|---|---|
+| ✅ Working | `[Effects] 'vfx_...' resolved for candidates [...]` — that effect will play |
+| ⚠️ Guessed wrong | `[Effects] no prefab found among [a, b, c]` — harmless, just invisible. Pick a real name from the dump and put it in the `5 - Visual Effects` config section |
+
+Each entry takes a **comma-separated list**; the first name that exists is used, so you can leave
+several candidates in place.
+
+Also confirm the rank-up moment: `proven_grant Swords 150` on a character that does not have it
+should print *"Your hands remember. Swords — Blooded."* top-left, with an effect.
+
+**Send me the `no prefab found` lines** (or the dump itself) and I will set verified names as the
+defaults.
+
 ### Cleaning up
 
 To put a character back to untested:
@@ -272,4 +299,6 @@ visible at 1.0** — both are guesses in the config right now.
 |---|---|---|
 | 2026-08-08 | Phase 1 | Passed. `raiseskill` confirmed unable to move Proven. Tier gate found too strict — fixed. |
 | 2026-08-09 | Phase 2 | Duelist's Guard confirmed working in-game. |
+| 2026-08-09 | Infrastructure | Passed. Client + dedicated server both load; version match OK; `proven_reset` works against the real admin path. |
+| 2026-08-09 | Phase 1 (networked) | Passed. Kill reports, Proven sync and the identity handshake verified across a real client/server boundary for the first time. |
 | | Phase 3 R1 | *pending* |

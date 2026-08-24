@@ -59,6 +59,7 @@ namespace OldWays
 
                 float duration = OldWaysConfig.SpearImpaleDuration.Value;
                 Pinned[__instance.GetInstanceID()] = new Pin { Until = Time.time + duration };
+                Effects.SpawnOn(OldWaysConfig.FxImpale.Value, __instance);
 
                 if (OldWaysConfig.VerboseLogging.Value)
                     Plugin.Log.LogInfo($"[Impale] pinned '{__instance.name}' for {duration:0.#}s.");

@@ -40,6 +40,9 @@ namespace OldWays
                                                 OldWaysConfig.KnifeVanishRadius.Value,
                                                 __instance);
 
+                // Only when it actually did something — an effect for a no-op would read as a lie.
+                if (cleared > 0) Effects.SpawnOn(OldWaysConfig.FxVanish.Value, local);
+
                 if (OldWaysConfig.VerboseLogging.Value)
                     Plugin.Log.LogInfo($"[Vanish] sneak kill on '{__instance.name}' — {cleared} creature(s) lost track of you.");
             }

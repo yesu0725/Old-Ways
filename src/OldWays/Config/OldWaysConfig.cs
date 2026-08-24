@@ -25,6 +25,7 @@ namespace OldWays
         private const string SecProven = "2 - Proven";
         private const string SecReactions = "3 - Enemy Reactions";
         private const string SecPowers = "4 - Weapon Powers";
+        private const string SecEffects = "5 - Visual Effects";
 
         internal static readonly ConfigSync SyncManager = new(Plugin.PluginGuid)
         {
@@ -105,6 +106,19 @@ namespace OldWays
 
         internal static ConfigEntry<bool> UnarmedFlowEnabled;
         internal static ConfigEntry<float> UnarmedFlowWindow;
+
+        // ---- Visual effects (docs/02) --------------------------------------------------
+        // Each is a comma-separated candidate list; the first prefab that exists is used.
+        // Run 'oldways_dumpeffects' for the real names.
+
+        internal static ConfigEntry<bool> VisualEffectsEnabled;
+        internal static ConfigEntry<string> FxRankUp;
+        internal static ConfigEntry<string> FxDuelistsGuard;
+        internal static ConfigEntry<string> FxGuardCrusher;
+        internal static ConfigEntry<string> FxHook;
+        internal static ConfigEntry<string> FxVanish;
+        internal static ConfigEntry<string> FxImpale;
+        internal static ConfigEntry<string> FxSetAgainstCharge;
 
         internal static void Bind(ConfigFile cfg)
         {
@@ -203,6 +217,24 @@ namespace OldWays
                 "Unarmed, rank 1: landing bare-handed blows keeps your attack chain from resetting.");
             UnarmedFlowWindow = Bind(cfg, SecPowers, "Unarmed - Flow Window", 3f,
                 "Seconds a landed blow keeps the streak alive. Taking a hit ends it immediately.");
+
+            VisualEffectsEnabled = Bind(cfg, SecEffects, "Enabled", true,
+                "Show a vanilla effect when a Proven power fires. Vanilla prefabs only — this mod adds no art.");
+
+            FxRankUp = Bind(cfg, SecEffects, "Rank Up", "vfx_lvlup,vfx_guardstone_activate,vfx_Potion_health",
+                "Played when a Proven rank is earned.");
+            FxDuelistsGuard = Bind(cfg, SecEffects, "Swords - Duelists Guard", "vfx_blocked,vfx_HitSparks,vfx_hit_sparks",
+                "Played on a sword parry that Duelist's Guard carried.");
+            FxGuardCrusher = Bind(cfg, SecEffects, "Clubs - Guard Crusher", "vfx_blocked,vfx_HitSparks,vfx_hit_sparks",
+                "Played when a club breaks through a raised guard.");
+            FxHook = Bind(cfg, SecEffects, "Axes - Hook", "vfx_HitSparks,vfx_hit_sparks,vfx_blocked",
+                "Played on the target as it is dragged in.");
+            FxVanish = Bind(cfg, SecEffects, "Knives - Vanish", "vfx_smoke,vfx_Smoke,fx_Potion_stamina_medium",
+                "Played on you when you slip out of sight.");
+            FxImpale = Bind(cfg, SecEffects, "Spears - Impale", "vfx_spear_hit,vfx_HitSparks,vfx_hit_sparks",
+                "Played on a pinned target.");
+            FxSetAgainstCharge = Bind(cfg, SecEffects, "Polearms - Set Against The Charge", "vfx_HitSparks,vfx_blocked,vfx_hit_sparks",
+                "Played on a charger that impales itself on your guard.");
         }
 
         /// <summary>

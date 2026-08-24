@@ -50,11 +50,14 @@ That last part matters most — Proven is only fair if the player knows how to e
 next unlock or the anti-farm rules feel arbitrary. Rank name carries the flavor, the number carries the
 information.
 
-## Notifications
+## Notifications — `IMPLEMENTED 2026-08-09`
 
 **On rank-up only** — one line in the existing top-left message area ("*Your hands remember. Blocking —
-Tempered.*"), plus the vanilla skill-up sound. **No per-event toast** — with kill-weighted PP that
-would spam constantly. `PROPOSED`.
+Tempered.*"), plus a vanilla effect. **No per-event toast** — with kill-weighted PP that would spam constantly.
+
+Announced client-side in `ProvenRpc.RPC_SyncProven`, where the new values land, rather than as a
+separate message that could arrive out of order. The first sync of a session is skipped: it
+carries everything you already had, and celebrating it would fire on every login.
 
 ## Open items
 

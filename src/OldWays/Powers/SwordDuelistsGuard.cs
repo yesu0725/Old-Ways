@@ -91,6 +91,10 @@ namespace OldWays
 
                 Trace($"sword {(parry ? "PARRY" : "block")} with '{weapon.m_shared.m_name}' — " +
                       $"Duelist's Guard {(AppliesTo(weapon) ? "ACTIVE" : "inactive")}.");
+
+                // Parries only. A held block firing an effect on every incoming hit would be noise.
+                if (parry && AppliesTo(weapon))
+                    Effects.SpawnOn(OldWaysConfig.FxDuelistsGuard.Value, __instance);
             }
         }
     }

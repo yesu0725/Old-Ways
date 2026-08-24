@@ -65,8 +65,8 @@ mastery. Nothing is bolted on: every effect finishes something vanilla started.
 The handoff's power table was written without checking vanilla. Auditing it cost two implemented
 no-ops (Riposte) and one power that could never exist (shield bash). **Check what vanilla already
 does at a trigger before designing for it**, and read attack data from
-`oldways_dumpweapons` rather than memory — attack definitions live in prefab data, not in the
-assembly. Cuts and their reasoning: [02](docs/02-weapon-mastery.md).
+`oldways_dumpweapons` (and effect names from `oldways_dumpeffects`) rather than memory — attack and
+effect definitions live in prefab data, not in the assembly. Cuts and their reasoning: [02](docs/02-weapon-mastery.md).
 
 ## Build
 
