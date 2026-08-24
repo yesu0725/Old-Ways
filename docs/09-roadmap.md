@@ -83,7 +83,7 @@ One family end to end, to prove the whole pipeline before committing to twelve m
 - [x] `Powers/SwordDuelistsGuard.cs` — sword blocks/parries at shield strength, gated on Swords R1
 - [x] Level-2 config toggle + tunable multiplier
 - [x] `proven_grant` admin test command so rank 1 can be reached without grinding
-- [ ] **In-game verification**
+- [x] **In-game verification, 2026-08-09** — Duelist's Guard confirmed working
 
 **Exit:** the sword power works, correctly locked before R1 and unlocked after.
 
