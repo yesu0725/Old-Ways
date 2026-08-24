@@ -7,11 +7,36 @@ A new plan is added per phase. Results get recorded here so a re-test after a ch
 
 ## Before anything
 
-1. Launch Valheim through the r2modman **Mod Test Profile** (not the Steam install — the profile has
-   its own BepInEx tree).
-2. Load into a world. A dedicated test world is better than your real one: several of these tests
-   spawn creatures and grant Proven.
-3. Press **F5** to open the console, then:
+### Choose a setup
+
+| Setup | Use when |
+|---|---|
+| **Client + local dedicated server** | default. This is the only setup that exercises the real client/server split — kill reports, Proven sync and the identity handshake actually cross the wire |
+| **r2modman "Mod Test Profile"** alone | isolating a problem from the other 20 mods |
+
+Every build deploys to both, plus the Gale **HB Test** client profile.
+
+### Client + dedicated server
+
+1. **Restart the dedicated server after every build.** A running server keeps the old dll loaded.
+   This is the single easiest mistake to make: the client gets the new build, the server does not,
+   and version matching then refuses the connection — which at least fails loudly.
+2. Start it: `start_headless_server.bat` in the dedicated server folder.
+3. Launch the client through the **Gale "HB Test"** profile and connect.
+4. **Admin commands need your Steam ID in `adminlist.txt`**
+   (`%AppData%\..\LocalLow\IronGate\Valheim\adminlist.txt`). Two IDs are already listed. If
+   `proven_grant` replies *"Refused: you are not a server admin"*, that file is why.
+
+Two things live **on the server**, not the client:
+
+- **Config.** It is ServerSync'd and admin-locked, so the server's values win — editing the client's
+  `OldWays.cfg` does nothing. Edit the server's copy and restart it.
+- **The Proven store**, at `BepInEx/config/OldWays/proven_<worldUID>.dat` on the server. Delete that
+  file for a truly clean slate.
+
+### Then, either setup
+
+Load in and press **F5** for the console:
 
 ```
 devcommands
@@ -19,21 +44,27 @@ devcommands
 
 Cheats must be on — `proven_grant`, `proven_set` and `proven_reset` are all cheat-flagged.
 
-4. Confirm the mod is live:
+Confirm the mod is live:
 
 ```
 proven
 ```
 
-You should see the trial log with all 12 skills listed. If the command is not recognised, the plugin
-did not load — check `BepInEx/LogOutput.log` before going further.
+You should see the trial log with all 12 skills. If the command is not recognised, the plugin did
+not load — check the log before going further.
 
 **Keep the console open while testing.** Verbose logging is on by default and every power announces
-itself. The log lines matter as much as what you see on screen — several of these effects are subtle,
-and the log is what distinguishes "not working" from "not triggering".
+itself. The log lines matter as much as what you see on screen: several effects are subtle, and the
+log is what distinguishes "not working" from "not triggering".
 
-Log file, if you want to scroll back:
-`%AppData%\r2modmanPlus-local\Valheim\profiles\Mod Test Profile\BepInEx\LogOutput.log`
+Logs:
+- client — `%AppData%\com.kesomannen.gale\valheim\profiles\HB Test\BepInEx\LogOutput.log`
+- server — `<dedicated server>\BepInEx\LogOutput.log`
+
+On a dedicated server the two halves log different things. Anything prefixed `[Proven]`, `[Admin]`
+or `[AdminAuth]` about awards and grants happens **server-side**; power effects (`[Hook]`,
+`[Impale]`, `[Flow]`…) are **client-side**. If a power seems dead, check the client log; if Proven
+is not moving, check the server's.
 
 ---
 

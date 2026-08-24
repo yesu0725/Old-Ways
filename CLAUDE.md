@@ -1,6 +1,6 @@
 # The Old Ways — Project Overview
 
-BepInEx mod for Valheim, built for the TaegukGaming server. **Status: design phase — no code written yet.**
+BepInEx mod for Valheim, built for the TaegukGaming server. **Status: Phases 0–2 done, Phase 3 in progress.**
 The authoritative source of the original concept is [old-ways-handoff.md](old-ways-handoff.md); the `docs/`
 files below are the living, maintained version of it.
 
@@ -74,10 +74,11 @@ assembly. Cuts and their reasoning: [02](docs/02-weapon-mastery.md).
 dotnet build src/OldWays/OldWays.csproj -c Release
 ```
 
-**Every build auto-deploys to the r2modman "Mod Test Profile"** — that profile has its own BepInEx
-tree, so the Steam install's plugins folder is not what a profile launch reads. Game assemblies come
-from the local Steam install via [Directory.Build.props](Directory.Build.props) and are never
-committed.
+**Every build auto-deploys** to the Gale "HB Test" client profile, the local dedicated server, and
+the r2modman "Mod Test Profile" — each keeps its own BepInEx tree, so the Steam install's plugins
+folder is not what a profile launch reads. Targets are listed in
+[Directory.Build.props](Directory.Build.props). Game assemblies come from the local Steam install
+and are never committed.
 
 ## Maintenance rule (read this before editing anything)
 

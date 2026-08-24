@@ -94,25 +94,19 @@
   </Target>
 
   <!--
-    Every build lands in the r2modman test profile. The .pdb goes too, so BepInEx stack traces
-    carry line numbers.
-  -->
-  <Target Name="DeployToTestProfile" AfterTargets="Build" Condition="'$(DeployToTestProfile)' == 'true'">
-    <Warning Condition="!Exists('$(R2ModManProfile)')"
-             Text="r2modman test profile not found at '$(R2ModManProfile)' — skipping deploy. Override &lt;R2ModManProfile&gt; in Directory.Build.props.user." />
-    <MakeDir Condition="Exists('$(R2ModManProfile)')" Directories="$(TestProfilePlugins)" />
-    <Copy Condition="Exists('$(R2ModManProfile)')"
-          SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb"
-          DestinationFolder="$(TestProfilePlugins)"
-          SkipUnchangedFiles="false" />
-    <Message Condition="Exists('$(R2ModManProfile)')" Importance="high"
-             Text="Deployed $(TargetFileName) -> $(TestProfilePlugins)" />
-  </Target>
+    Deploy to every target listed in Directory.Build.props. The pdb goes too, so BepInEx stack
+    traces carry line numbers.
 
-  <Target Name="DeployToClient" AfterTargets="Build" Condition="'$(DeployToClient)' == 'true'">
-    <MakeDir Directories="$(ValheimDir)\BepInEx\plugins\OldWays" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ValheimDir)\BepInEx\plugins\OldWays" />
-    <Message Importance="high" Text="Deployed $(TargetFileName) -> $(ValheimDir)\BepInEx\plugins\OldWays" />
+    ContinueOnError: a locked file (server running, game open) or a missing directory must not
+    fail the build — the other targets still get the new dll, and the warning says which did not.
+  -->
+  <Target Name="DeployOldWays" AfterTargets="Build" Condition="'$(DeployAfterBuild)' == 'true'">
+    <MakeDir Directories="@(OldWaysDeployTarget)" ContinueOnError="WarnAndContinue" />
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb"
+          DestinationFolder="%(OldWaysDeployTarget.Identity)"
+          SkipUnchangedFiles="false"
+          ContinueOnError="WarnAndContinue" />
+    <Message Importance="high" Text="Deployed $(TargetFileName) -> %(OldWaysDeployTarget.Identity)" />
   </Target>
 
 </Project>

@@ -32,15 +32,16 @@ Requires the .NET SDK and a local Valheim install.
 dotnet build src/OldWays/OldWays.csproj -c Release
 ```
 
-**Every build auto-deploys** (dll + pdb) to the r2modman test profile:
+**Every build auto-deploys** (dll + pdb) to all three test installs:
 
-```
-%AppData%\r2modmanPlus-local\Valheim\profiles\Mod Test Profile\BepInEx\plugins\OldWays\
-```
+- Gale profile **HB Test** (client, full mod set)
+- the **local dedicated server**
+- r2modman **Mod Test Profile** (isolated clean room)
 
-r2modman keeps a separate BepInEx tree per profile, so the Steam install's plugins folder is *not*
-what a profile launch reads. Add `-p:DeployToTestProfile=false` to skip the copy, or
-`-p:DeployToClient=true` to also copy into the raw Steam install.
+Each mod manager keeps a separate BepInEx tree per profile, so the Steam install's plugins
+folder is *not* what a profile launch reads. Targets live in `Directory.Build.props`; add
+`-p:DeployAfterBuild=false` to skip. A locked or missing target warns and continues rather than
+failing the build.
 
 If Valheim or the test profile isn't at the default path, create `Directory.Build.props.user`
 (gitignored):

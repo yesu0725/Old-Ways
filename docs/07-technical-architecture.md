@@ -17,21 +17,35 @@ Status: `DECIDED`, versions verified against the local install 2026-08-06.
 
 ### Test deployment — `IMPLEMENTED`
 
-**Every build copies itself into the r2modman "Mod Test Profile" automatically.** The `.pdb` goes too,
-so BepInEx stack traces carry line numbers.
+**Every build copies the dll and pdb into all three of these automatically** (the pdb so BepInEx
+stack traces carry line numbers). Targets are listed in `Directory.Build.props`; add or remove rows
+there.
 
-```
-%AppData%\r2modmanPlus-local\Valheim\profiles\Mod Test Profile\BepInEx\plugins\OldWays\
-```
+| Target | Why |
+|---|---|
+| Gale profile **HB Test** — `%AppData%\com.kesomannen.gale\valheim\profiles\HB Test\BepInEx\plugins\OldWays` | the real client mod set, including BiomeLords |
+| **Local dedicated server** — `<ValheimServerDir>\BepInEx\plugins\OldWays` | the server-authoritative half of Proven runs here |
+| r2modman **Mod Test Profile** | isolated clean-room test with few other mods |
 
-r2modman keeps a **separate BepInEx tree per profile** — dropping the dll into the Steam install would
-not be picked up by a profile launch. That's why this, not the Steam folder, is the default target.
-`-p:DeployToTestProfile=false` skips it; `-p:DeployToClient=true` additionally copies into the raw
-Steam install.
+Each mod manager keeps a **separate BepInEx tree per profile** — dropping the dll into the Steam
+install is not what a profile launch reads.
 
-Already installed in that profile and useful here: **ConfigurationManager** (inspect the synced config
+`-p:DeployAfterBuild=false` skips deployment. A locked file (server running, game open) or a missing
+directory warns and continues rather than failing the build, so the other targets still get the new
+dll and the warning names the one that did not.
+
+**The plugin folder name is identical in every target, deliberately.** BepInEx refuses to load two
+plugins with the same GUID, so a renamed folder sitting beside a stale old one would break every
+install it touched.
+
+Useful mods already present in those profiles: **ConfigurationManager** (inspect the synced config
 in-game) and **server_devcommands** (`raiseskill` — the exact thing Proven must be immune to, per
 [03](03-proven-system.md)).
+
+**What client + dedicated server buys us:** kill reports, Proven sync and the identity handshake now
+cross a real network boundary instead of resolving locally. Single player never exercised that path
+at all. BiomeLords being installed alongside also gives an early read on the three-mod compatibility
+question deferred to Phase 9.
 
 ### Verified local environment (2026-08-06)
 

@@ -2,7 +2,7 @@
 
   <!--
     Local machine paths. Override per-machine by creating Directory.Build.props.user
-    (gitignored) next to this file with your own <ValheimDir> / <ValheimServerDir>.
+    (gitignored) next to this file.
 
     Verified on this machine 2026-08-06:
       client BepInEx 5.4.23.3 (build 21981559)
@@ -15,20 +15,35 @@
     <ValheimManaged>$(ValheimDir)\valheim_Data\Managed</ValheimManaged>
     <BepInExCore>$(ValheimDir)\BepInEx\core</BepInExCore>
 
+    <!-- Set DeployAfterBuild=false to skip all deployment for a build. -->
+    <DeployAfterBuild Condition="'$(DeployAfterBuild)' == ''">true</DeployAfterBuild>
+
     <!--
-      Every build is copied here automatically. This is the r2modman test profile used to
-      run the mod ("Mod Test Profile"), NOT the raw Steam install — r2modman keeps its own
-      BepInEx tree per profile, so dropping the dll in the Steam folder would not be picked up.
-
-      Set DeployToTestProfile=false to skip the copy for a build.
+      Folder name used inside each plugins directory. Kept identical everywhere: BepInEx refuses
+      to load two plugins with the same GUID, so a renamed folder alongside a stale old one would
+      break every install it touched.
     -->
-    <R2ModManProfile Condition="'$(R2ModManProfile)' == ''">$(AppData)\r2modmanPlus-local\Valheim\profiles\Mod Test Profile</R2ModManProfile>
-    <TestProfilePlugins>$(R2ModManProfile)\BepInEx\plugins\OldWays</TestProfilePlugins>
-    <DeployToTestProfile Condition="'$(DeployToTestProfile)' == ''">true</DeployToTestProfile>
-
-    <!-- Opt-in: also copy into the raw Steam install's plugins folder. -->
-    <DeployToClient Condition="'$(DeployToClient)' == ''">false</DeployToClient>
+    <PluginFolderName>OldWays</PluginFolderName>
   </PropertyGroup>
+
+  <!--
+    Every build copies the dll (and pdb, so BepInEx stack traces carry line numbers) into each of
+    these. Missing directories are skipped with a warning rather than failing the build, so this
+    still works on a machine that has only some of them.
+
+    Each mod manager keeps its own BepInEx tree per profile — dropping the dll in the Steam install
+    is NOT what a profile launch reads.
+  -->
+  <ItemGroup>
+    <!-- Gale profile "HB Test" — the real client mod set, alongside BiomeLords. -->
+    <OldWaysDeployTarget Include="$(AppData)\com.kesomannen.gale\valheim\profiles\HB Test\BepInEx\plugins\$(PluginFolderName)" />
+
+    <!-- Local dedicated server — the server-authoritative half of Proven runs here. -->
+    <OldWaysDeployTarget Include="$(ValheimServerDir)\BepInEx\plugins\$(PluginFolderName)" />
+
+    <!-- Original isolated r2modman profile. Kept as a clean-room test with few other mods. -->
+    <OldWaysDeployTarget Include="$(AppData)\r2modmanPlus-local\Valheim\profiles\Mod Test Profile\BepInEx\plugins\$(PluginFolderName)" />
+  </ItemGroup>
 
   <Import Project="Directory.Build.props.user" Condition="Exists('Directory.Build.props.user')" />
 
