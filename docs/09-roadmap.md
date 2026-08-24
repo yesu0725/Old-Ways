@@ -75,7 +75,7 @@ Log lines to watch for in the BepInEx console: `[Proven] server authority online
 **Exit:** a player can earn Proven, see it in the skills screen, and it survives a server restart.
 Console `raiseskill` does nothing to it. No powers exist yet.
 
-## Phase 2 — Vertical slice: Swords  `CODE COMPLETE, UNTESTED IN-GAME`
+## Phase 2 — Vertical slice: Swords  `VERIFIED IN-GAME 2026-08-09`
 
 One family end to end, to prove the whole pipeline before committing to twelve more.
 
